@@ -6,6 +6,10 @@ namespace HospitalAppointmentSystem.Models
     {
         public int PatientId { get; set; }
 
+        // Connection to ASP.NET Identity
+        [Required]
+        public string UserId { get; set; } = string.Empty;
+
         [Required]
         [StringLength(100)]
         public string FullName { get; set; } = string.Empty;
@@ -26,7 +30,7 @@ namespace HospitalAppointmentSystem.Models
         [Phone]
         public string? EmergencyContact { get; set; }
 
-        // One patient can have many appointments
+        // Patient can have many appointments
         public ICollection<Appointment> Appointments { get; set; }
             = new List<Appointment>();
     }

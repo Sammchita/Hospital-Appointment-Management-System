@@ -18,6 +18,27 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                @if (User.IsInRole("Patient"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark"
+                           asp-controller="Patient"
+                           asp-action="Dashboard">
+                            Patient Dashboard
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Patient"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark"
+                           asp-controller="Patient"
+                           asp-action="BookAppointment">
+                            Book Appointment
+                        </a>
+                    </li>
+                 }
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">

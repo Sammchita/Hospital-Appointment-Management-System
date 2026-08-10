@@ -1,4 +1,5 @@
 using HospitalAppointmentSystem.Data;
+using HospitalAppointmentSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,17 +16,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Configure ASP.NET Core Identity
+// Configure ASP.NET Core Identity (use built-in IdentityUser)
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
 })
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Add MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// Seed roles and admin account
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    await IdentitySeedData.SeedRolesAndAdminAsync(services);
+}
 
 // Configure HTTP request pipeline
 if (app.Environment.IsDevelopment())

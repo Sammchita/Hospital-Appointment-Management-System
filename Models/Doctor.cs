@@ -6,6 +6,10 @@ namespace HospitalAppointmentSystem.Models
     {
         public int DoctorId { get; set; }
 
+        // Connection to ASP.NET Identity
+        [Required]
+        public string UserId { get; set; } = string.Empty;
+
         [Required]
         [StringLength(100)]
         public string FullName { get; set; } = string.Empty;
@@ -23,13 +27,12 @@ namespace HospitalAppointmentSystem.Models
         [EmailAddress]
         public string? Email { get; set; }
 
-        // Foreign Key
+        // Department
         public int DepartmentId { get; set; }
 
-        // Navigation Property
         public Department Department { get; set; } = null!;
 
-        // One doctor can have many appointments
+        // Doctor can have many appointments
         public ICollection<Appointment> Appointments { get; set; }
             = new List<Appointment>();
     }

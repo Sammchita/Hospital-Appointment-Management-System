@@ -1,10 +1,11 @@
 ﻿using HospitalAppointmentSystem.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalAppointmentSystem.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options)
@@ -19,5 +20,30 @@ namespace HospitalAppointmentSystem.Data
         public DbSet<Department> Departments { get; set; }
 
         public DbSet<Appointment> Appointments { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Patient>()
+                .HasOne<IdentityUser>()
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Doctor>()
+                .HasOne<IdentityUser>()
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Patient>()
+                .HasIndex(p => p.UserId)
+                .IsUnique();
+
+            builder.Entity<Doctor>()
+                .HasIndex(d => d.UserId)
+                .IsUnique();
+        }
     }
 }
