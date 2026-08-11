@@ -1,212 +1,99 @@
-﻿using HospitalAppointmentSystem.Data;
-using HospitalAppointmentSystem.Models;
-using HospitalAppointmentSystem.ViewModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿@model HospitalAppointmentSystem.Models.Patient
 
-namespace HospitalAppointmentSystem.Controllers
-{
-[Authorize(Roles = "Patient")]
-public class PatientController : Controller
-{
-private readonly ApplicationDbContext _context;
-private readonly UserManager<ApplicationUser>
-_userManager;
-
-public PatientController(
-ApplicationDbContext context,
-UserManager<ApplicationUser>
-userManager)
-{
-_context = context;
-_userManager = userManager;
+@{
+    ViewData["Title"] = "Patient Dashboard";
 }
 
-// GET: /Patient/Dashboard
-public async Task<IActionResult>
-Dashboard()
-{
-var userId = _userManager.GetUserId(User);
+<div class="container mt-4">
 
-var patient = await _context.Patients
-.FirstOrDefaultAsync(p => p.UserId == userId);
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Patient Dashboard</h1>
+            <p class="text-muted">
+                Welcome, @Model.FullName
+            </p>
+        </div>
+    </div>
 
-if (patient == null)
-{
-return NotFound("Patient profile not found.");
-}
+    <div class="row">
 
-var appointments = await _context.Appointments
-.Include(a => a.Doctor)
-.ThenInclude(d => d.Department)
-.Where(a => a.PatientId == patient.PatientId)
-.OrderByDescending(a => a.AppointmentDate)
-.ThenByDescending(a => a.AppointmentTime)
-.ToListAsync();
+        <!-- Patient Information -->
+        <div class="col-md-6 mb-4">
 
-ViewBag.Patient = patient;
+            <div class="card shadow-sm">
 
-return View(appointments);
-}
+                <div class="card-header">
+                    <h5 class="mb-0">My Information</h5>
+                </div>
 
-// GET: /Patient/BookAppointment
-[HttpGet]
-public async Task<IActionResult>
-BookAppointment()
-{
-var doctors = await _context.Doctors
-.Include(d => d.Department)
-.OrderBy(d => d.FullName)
-.ToListAsync();
+                <div class="card-body">
 
-ViewBag.Doctors = doctors;
+                    <p>
+                        <strong>Name:</strong>
+                        @Model.FullName
+                    </p>
 
-return View(new BookAppointmentViewModel
-{
-AppointmentDate = DateTime.Today.AddDays(1),
-AppointmentTime = new TimeSpan(10, 0, 0)
-});
-}
+                    <p>
+                        <strong>Date of Birth:</strong>
+                        @Model.DateOfBirth.ToString("yyyy-MM-dd")
+                    </p>
 
-// POST: /Patient/BookAppointment
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult>
-BookAppointment(
-BookAppointmentViewModel model)
-{
-var userId = _userManager.GetUserId(User);
+                    <p>
+                        <strong>Gender:</strong>
+                        @Model.Gender
+                    </p>
 
-var patient = await _context.Patients
-.FirstOrDefaultAsync(p => p.UserId == userId);
+                    <p>
+                        <strong>Phone:</strong>
+                        @Model.PhoneNumber
+                    </p>
 
-if (patient == null)
-{
-return NotFound("Patient profile not found.");
-}
+                    <p>
+                        <strong>Address:</strong>
+                        @Model.Address
+                    </p>
 
-if (!ModelState.IsValid)
-{
-await LoadDoctors();
-return View(model);
-}
+                </div>
 
-// Appointment must not be in the past
-if (model.AppointmentDate.Date < DateTime.Today)
-                             {
-                             ModelState.AddModelError(
-                             "AppointmentDate",
-                             "Appointment date cannot be in the past.");
+            </div>
 
-                             await LoadDoctors();
-                             return View(model);
-                             }
+        </div>
 
-// Check doctor exists
-                             var doctor = await _context.Doctors
-                             .FirstOrDefaultAsync(d => d.DoctorId == model.DoctorId);
+        <!-- Quick Actions -->
+        <div class="col-md-6 mb-4">
 
-if (doctor == null)
-{
-ModelState.AddModelError(
-"DoctorId",
-"Selected doctor does not exist.");
+            <div class="card shadow-sm">
 
-await LoadDoctors();
-return View(model);
-}
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
 
-// Prevent double booking
-var alreadyBooked = await _context.Appointments
-.AnyAsync(a =>
-a.DoctorId == model.DoctorId &&
-a.AppointmentDate.Date == model.AppointmentDate.Date &&
-a.AppointmentTime == model.AppointmentTime &&
-a.Status != AppointmentStatus.Cancelled);
+                <div class="card-body">
 
-if (alreadyBooked)
-{
-ModelState.AddModelError(
-string.Empty,
-"This time slot is already booked.");
+                    <a asp-controller="Appointment"
+                       asp-action="Book"
+                       class="btn btn-primary mb-2 w-100">
+                        Book Appointment
+                    </a>
 
-await LoadDoctors();
-return View(model);
-}
+                    <a asp-controller="Appointment"
+                       asp-action="Index"
+                       class="btn btn-outline-primary mb-2 w-100">
+                        My Appointments
+                    </a>
 
-var appointment = new Appointment
-{
-PatientId = patient.PatientId,
-DoctorId = model.DoctorId,
-AppointmentDate = model.AppointmentDate.Date,
-AppointmentTime = model.AppointmentTime,
-Reason = model.Reason,
-Status = AppointmentStatus.Scheduled,
-CreatedAt = DateTime.Now
-};
+                    <a asp-controller="Patient"
+                       asp-action="Profile"
+                       class="btn btn-outline-secondary w-100">
+                        My Profile
+                    </a>
 
-_context.Appointments.Add(appointment);
+                </div>
 
-await _context.SaveChangesAsync();
+            </div>
 
-TempData["SuccessMessage"] =
-"Appointment booked successfully.";
+        </div>
 
-return RedirectToAction(nameof(Dashboard));
-}
+    </div>
 
-// POST: /Patient/CancelAppointment
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult>
-CancelAppointment(int id)
-{
-var userId = _userManager.GetUserId(User);
-
-var patient = await _context.Patients
-.FirstOrDefaultAsync(p => p.UserId == userId);
-
-if (patient == null)
-{
-return NotFound();
-}
-
-var appointment = await _context.Appointments
-.FirstOrDefaultAsync(a =>
-a.AppointmentId == id &&
-a.PatientId == patient.PatientId);
-
-if (appointment == null)
-{
-return NotFound();
-}
-
-if (appointment.Status == AppointmentStatus.Completed)
-{
-TempData["ErrorMessage"] =
-"Completed appointments cannot be cancelled.";
-
-return RedirectToAction(nameof(Dashboard));
-}
-
-appointment.Status = AppointmentStatus.Cancelled;
-
-await _context.SaveChangesAsync();
-
-TempData["SuccessMessage"] =
-"Appointment cancelled successfully.";
-
-return RedirectToAction(nameof(Dashboard));
-}
-
-private async Task LoadDoctors()
-{
-ViewBag.Doctors = await _context.Doctors
-.Include(d => d.Department)
-.OrderBy(d => d.FullName)
-.ToListAsync();
-}
-}
-}
+</div>

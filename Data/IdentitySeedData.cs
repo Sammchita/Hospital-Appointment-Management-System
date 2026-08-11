@@ -12,7 +12,7 @@ namespace HospitalAppointmentSystem.Data
                 serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             var userManager =
-                serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             string[] roles =
             {
@@ -31,25 +31,24 @@ namespace HospitalAppointmentSystem.Data
                 }
             }
 
+            // Admin account
             var adminEmail = "admin@hospital.com";
-            var adminPassword = "Admin@12345";
 
             var adminUser =
                 await userManager.FindByEmailAsync(adminEmail);
 
             if (adminUser == null)
             {
-                adminUser = new IdentityUser
+                adminUser = new ApplicationUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
                     EmailConfirmed = true
                 };
 
-                var result =
-                    await userManager.CreateAsync(
-                        adminUser,
-                        adminPassword);
+                var result = await userManager.CreateAsync(
+                    adminUser,
+                    "Admin@123");
 
                 if (result.Succeeded)
                 {

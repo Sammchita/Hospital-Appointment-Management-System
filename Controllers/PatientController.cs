@@ -22,7 +22,6 @@ namespace HospitalAppointmentSystem.Controllers
             _userManager = userManager;
         }
 
-        // GET: /Patient/Dashboard
         public async Task<IActionResult> Dashboard()
         {
             var userId = _userManager.GetUserId(User);
@@ -32,175 +31,12 @@ namespace HospitalAppointmentSystem.Controllers
 
             if (patient == null)
             {
-                return NotFound("Patient profile not found.");
+                return NotFound("Patient profile was not found.");
             }
 
-            var appointments = await _context.Appointments
-                .Include(a => a.Doctor)
-                .ThenInclude(d => d.Department)
-                .Where(a => a.PatientId == patient.PatientId)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ThenByDescending(a => a.AppointmentTime)
-                .ToListAsync();
-
-            ViewBag.Patient = patient;
-
-            return View(appointments);
+            return View(patient);
         }
 
-        // GET: /Patient/BookAppointment
-        [HttpGet]
-        public async Task<IActionResult> BookAppointment()
-        {
-            var doctors = await _context.Doctors
-                .Include(d => d.Department)
-                .OrderBy(d => d.FullName)
-                .ToListAsync();
-
-            ViewBag.Doctors = doctors;
-
-            return View(new BookAppointmentViewModel
-            {
-                AppointmentDate = DateTime.Today.AddDays(1),
-                AppointmentTime = new TimeSpan(10, 0, 0)
-            });
-        }
-
-        // POST: /Patient/BookAppointment
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BookAppointment(
-            BookAppointmentViewModel model)
-        {
-            var userId = _userManager.GetUserId(User);
-
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.UserId == userId);
-
-            if (patient == null)
-            {
-                return NotFound("Patient profile not found.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadDoctors();
-                return View(model);
-            }
-
-            // Appointment must not be in the past
-            if (model.AppointmentDate.Date < DateTime.Today)
-            {
-                ModelState.AddModelError(
-                    "AppointmentDate",
-                    "Appointment date cannot be in the past.");
-
-                await LoadDoctors();
-                return View(model);
-            }
-
-            // Check doctor exists
-            var doctor = await _context.Doctors
-                .FirstOrDefaultAsync(d => d.DoctorId == model.DoctorId);
-
-            if (doctor == null)
-            {
-                ModelState.AddModelError(
-                    "DoctorId",
-                    "Selected doctor does not exist.");
-
-                await LoadDoctors();
-                return View(model);
-            }
-
-            // Prevent double booking
-            var alreadyBooked = await _context.Appointments
-                .AnyAsync(a =>
-                    a.DoctorId == model.DoctorId &&
-                    a.AppointmentDate.Date == model.AppointmentDate.Date &&
-                    a.AppointmentTime == model.AppointmentTime &&
-                    a.Status != AppointmentStatus.Cancelled);
-
-            if (alreadyBooked)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "This time slot is already booked.");
-
-                await LoadDoctors();
-                return View(model);
-            }
-
-            var appointment = new Appointment
-            {
-                PatientId = patient.PatientId,
-                DoctorId = model.DoctorId,
-                AppointmentDate = model.AppointmentDate.Date,
-                AppointmentTime = model.AppointmentTime,
-                Reason = model.Reason,
-                Status = AppointmentStatus.Scheduled,
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Appointments.Add(appointment);
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] =
-                "Appointment booked successfully.";
-
-            return RedirectToAction(nameof(Dashboard));
-        }
-
-        // POST: /Patient/CancelAppointment
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CancelAppointment(int id)
-        {
-            var userId = _userManager.GetUserId(User);
-
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.UserId == userId);
-
-            if (patient == null)
-            {
-                return NotFound();
-            }
-
-            var appointment = await _context.Appointments
-                .FirstOrDefaultAsync(a =>
-                    a.AppointmentId == id &&
-                    a.PatientId == patient.PatientId);
-
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            if (appointment.Status == AppointmentStatus.Completed)
-            {
-                TempData["ErrorMessage"] =
-                    "Completed appointments cannot be cancelled.";
-
-                return RedirectToAction(nameof(Dashboard));
-            }
-
-            appointment.Status = AppointmentStatus.Cancelled;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] =
-                "Appointment cancelled successfully.";
-
-            return RedirectToAction(nameof(Dashboard));
-        }
-
-        private async Task LoadDoctors()
-        {
-            ViewBag.Doctors = await _context.Doctors
-                .Include(d => d.Department)
-                .OrderBy(d => d.FullName)
-                .ToListAsync();
-        }
+        
     }
 }

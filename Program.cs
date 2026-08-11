@@ -5,39 +5,52 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Get database connection string
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "Connection string 'DefaultConnection' not found.");
 
-// Register ApplicationDbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Configure ASP.NET Core Identity (use built-in IdentityUser)
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Add MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Seed roles and admin account
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
     await IdentitySeedData.SeedRolesAndAdminAsync(services);
+
+    var userManager =
+        services.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var patientUser =
+        await userManager.FindByEmailAsync("patient@gmail.com");
+
+    if (patientUser != null)
+    {
+        if (!await userManager.IsInRoleAsync(
+            patientUser,
+            "Patient"))
+        {
+            await userManager.AddToRoleAsync(
+                patientUser,
+                "Patient");
+        }
+    }
 }
 
-// Configure HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -54,16 +67,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Authentication must come before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// MVC routes
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Identity Razor Pages
 app.MapRazorPages();
 
 app.Run();
