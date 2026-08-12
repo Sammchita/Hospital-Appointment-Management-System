@@ -7,11 +7,13 @@ namespace HospitalAppointmentSystem.Models
         public int AppointmentId { get; set; }
 
         // Patient
+        [Required]
         public int PatientId { get; set; }
 
         public Patient Patient { get; set; } = null!;
 
         // Doctor
+        [Required]
         public int DoctorId { get; set; }
 
         public Doctor Doctor { get; set; } = null!;
@@ -23,12 +25,17 @@ namespace HospitalAppointmentSystem.Models
         [Required]
         public TimeSpan AppointmentTime { get; set; }
 
+        // Reason for appointment
         [StringLength(500)]
         public string? Reason { get; set; }
 
+        // Appointment status
+        [Required]
         public AppointmentStatus Status { get; set; }
-            = AppointmentStatus.Scheduled;
+            = AppointmentStatus.Pending;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        // When the appointment was created
+        public DateTime CreatedAt { get; set; }
+            = DateTime.Now;
     }
 }

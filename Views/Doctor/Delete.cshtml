@@ -1,0 +1,85 @@
+﻿@model HospitalAppointmentSystem.Models.Doctor
+
+@{
+    ViewData["Title"] = "Delete Doctor";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card border-danger">
+
+                <div class="card-header bg-danger text-white">
+                    Delete Doctor
+                </div>
+
+                <div class="card-body">
+
+                    <h4>
+                        Are you sure you want to delete
+                        <strong>Dr. @Model.FullName</strong>?
+                    </h4>
+
+                    <hr />
+
+                    <p>
+                        <strong>Specialization:</strong>
+                        @Model.Specialization
+                    </p>
+
+                    <p>
+                        <strong>Department:</strong>
+                        @Model.Department?.Name
+                    </p>
+
+                    @if (Model.Appointments.Any())
+                    {
+                        <div class="alert alert-warning">
+                            This doctor has
+                            <strong>@Model.Appointments.Count</strong>
+                            appointment(s).
+
+                            <br />
+
+                            The doctor cannot be deleted until
+                            their appointments are handled.
+                        </div>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Back
+                        </a>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete"
+                              method="post">
+
+                            <input type="hidden"
+                                   asp-for="DoctorId" />
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Yes, Delete
+                            </button>
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+                                Cancel
+                            </a>
+
+                        </form>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

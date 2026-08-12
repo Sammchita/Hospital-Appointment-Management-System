@@ -1,0 +1,222 @@
+﻿@model HospitalAppointmentSystem.Models.Appointment
+
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <h3 class="mb-0">Book an Appointment</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="alert alert-info">
+                        Select a doctor, date and time for your
+                        appointment.
+                    </div>
+
+                    <form asp-action="Book" method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <!-- Department -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Department
+                            </label>
+
+                            <select id="departmentSelect"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Select Department --
+                                </option>
+
+                                @foreach (
+                                    var department
+                                    in (IEnumerable<SelectListItem>)
+                                    ViewBag.Departments)
+                                {
+                                    <option value="@department.Value">
+                                        @department.Text
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <!-- Doctor -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="DoctorId"
+                                   class="form-label">
+                                Doctor
+                            </label>
+
+                            <select asp-for="DoctorId"
+                                    id="doctorSelect"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Select Doctor --
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="DoctorId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Date -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="AppointmentDate"
+                                   class="form-label">
+                                Appointment Date
+                            </label>
+
+                            <input asp-for="AppointmentDate"
+                                   type="date"
+                                   class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
+                            <span asp-validation-for="AppointmentDate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Time -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="AppointmentTime"
+                                   class="form-label">
+                                Appointment Time
+                            </label>
+
+                            <input asp-for="AppointmentTime"
+                                   type="time"
+                                   class="form-control" />
+
+                            <span asp-validation-for="AppointmentTime"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Reason -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Reason"
+                                   class="form-label">
+                                Reason for Visit
+                            </label>
+
+                            <textarea asp-for="Reason"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Briefly describe your reason for visiting...">
+                            </textarea>
+
+                            <span asp-validation-for="Reason"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Book Appointment
+                        </button>
+
+                        <a asp-controller="Patient"
+                           asp-action="Dashboard"
+                           class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document
+            .getElementById("departmentSelect")
+            .addEventListener("change", async function () {
+
+                const departmentId = this.value;
+
+                const doctorSelect =
+                    document.getElementById("doctorSelect");
+
+                doctorSelect.innerHTML =
+                    '<option value="">-- Select Doctor --</option>';
+
+                if (!departmentId) {
+                    return;
+                }
+
+                const response =
+                    await fetch(
+                        `/Appointment/GetDoctors?departmentId=${departmentId}`
+                    );
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const doctors =
+                    await response.json();
+
+                doctors.forEach(function (doctor) {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = doctor.doctorId;
+
+                    option.text =
+                        doctor.fullName +
+                        " - " +
+                        doctor.specialization;
+
+                    doctorSelect.appendChild(option);
+
+                });
+
+            });
+
+    </script>
+}

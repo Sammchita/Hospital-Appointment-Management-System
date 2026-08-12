@@ -1,0 +1,181 @@
+﻿@using HospitalAppointmentSystem.Models
+@model IEnumerable<HospitalAppointmentSystem.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>My Appointments</h1>
+            <p class="text-muted">
+                View and manage your appointments.
+            </p>
+        </div>
+
+        <a asp-action="Book"
+           class="btn btn-primary">
+            + Book Appointment
+        </a>
+
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+
+            You don't have any appointments yet.
+
+            <br /><br />
+
+            <a asp-action="Book"
+               class="btn btn-primary">
+                Book Your First Appointment
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var appointment in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @appointment.AppointmentDate
+                                    .ToString("yyyy-MM-dd")
+                            </td>
+
+                            
+                            <td>
+                                @appointment.AppointmentTime.ToString("hh\\:mm")
+                            </td>
+
+                            <td>
+                                Dr. @appointment.Doctor.FullName
+                            </td>
+
+                            <td>
+                                @appointment.Doctor
+                                    .Department.Name
+                            </td>
+
+                            <td>
+                                @(appointment.Reason
+                                    ?? "Not provided")
+                            </td>
+
+                            <td>
+
+                                @if (appointment.Status ==
+                                    AppointmentStatus.Pending)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+                                }
+                                else if (appointment.Status ==
+                                    AppointmentStatus.Confirmed)
+                                {
+                                    <span class="badge bg-success">
+                                        Confirmed
+                                    </span>
+                                }
+                                else if (appointment.Status ==
+                                    AppointmentStatus.Completed)
+                                {
+                                    <span class="badge bg-primary">
+                                        Completed
+                                    </span>
+                                }
+                                else if (appointment.Status ==
+                                    AppointmentStatus.Cancelled)
+                                {
+                                    <span class="badge bg-danger">
+                                        Cancelled
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        No Show
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                @if (appointment.Status ==
+                                    AppointmentStatus.Pending ||
+                                    appointment.Status ==
+                                    AppointmentStatus.Confirmed)
+                                {
+                                    <form asp-action="Cancel"
+                                          asp-route-id="@appointment.AppointmentId"
+                                          method="post">
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger">
+                                            Cancel
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</div>

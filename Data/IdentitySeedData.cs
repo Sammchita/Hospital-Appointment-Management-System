@@ -9,10 +9,12 @@ namespace HospitalAppointmentSystem.Data
             IServiceProvider serviceProvider)
         {
             var roleManager =
-                serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                serviceProvider.GetRequiredService<
+                    RoleManager<IdentityRole>>();
 
             var userManager =
-                serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                serviceProvider.GetRequiredService<
+                    UserManager<ApplicationUser>>();
 
             string[] roles =
             {
@@ -31,7 +33,6 @@ namespace HospitalAppointmentSystem.Data
                 }
             }
 
-            // Admin account
             var adminEmail = "admin@hospital.com";
 
             var adminUser =
@@ -57,6 +58,39 @@ namespace HospitalAppointmentSystem.Data
                         "Admin");
                 }
             }
+            else
+            {
+                // Reset Admin password
+                var token =
+                    await userManager.GeneratePasswordResetTokenAsync(
+                        adminUser);
+
+                var resetResult =
+                    await userManager.ResetPasswordAsync(
+                        adminUser,
+                        token,
+                        "Admin@123");
+
+                if (!resetResult.Succeeded)
+                {
+                    foreach (var error in resetResult.Errors)
+                    {
+                        Console.WriteLine(error.Description);
+                    }
+                }
+
+                // Make sure Admin has Admin role
+                if (!await userManager.IsInRoleAsync(
+                        adminUser,
+                        "Admin"))
+                {
+                    await userManager.AddToRoleAsync(
+                        adminUser,
+                        "Admin");
+                }
+            }
+
+
         }
     }
 }

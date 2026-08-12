@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HospitalAppointmentSystem.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Available Doctors";
+}
+
+<div class="container mt-4">
+
+    <div class="text-center mb-4">
+        <h1>Available Doctors</h1>
+        <p class="text-muted">
+            Choose a doctor to book your appointment.
+        </p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <h5>No doctors are currently available.</h5>
+            <p class="mb-0">
+                Please check again later.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+
+            @foreach (var doctor in Model)
+            {
+                <div class="col-md-4 mb-4">
+
+                    <div class="card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Dr. @doctor.FullName
+                            </h5>
+
+                            <p class="card-text">
+                                <strong>Specialization:</strong>
+                                @doctor.Specialization
+                            </p>
+
+                            <p class="card-text">
+                                <strong>Department:</strong>
+                                @doctor.Department?.Name
+                            </p>
+
+                            <a asp-controller="Appointment"
+                               asp-action="Book"
+                               asp-route-doctorId="@doctor.DoctorId"
+                               class="btn btn-primary">
+                                Book Appointment
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

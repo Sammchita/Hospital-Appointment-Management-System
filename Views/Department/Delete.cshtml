@@ -1,0 +1,76 @@
+﻿@model HospitalAppointmentSystem.Models.Department
+
+@{
+    ViewData["Title"] = "Delete Department";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card border-danger">
+
+                <div class="card-header bg-danger text-white">
+                    Delete Department
+                </div>
+
+                <div class="card-body">
+
+                    <h4>
+                        Are you sure you want to delete
+                        <strong>@Model.Name</strong>?
+                    </h4>
+
+                    <p class="text-muted">
+                        This action cannot be undone.
+                    </p>
+
+                    @if (Model.Doctors.Any())
+                    {
+                        <div class="alert alert-warning">
+                            This department has
+                            <strong>@Model.Doctors.Count</strong>
+                            doctor(s) assigned to it.
+
+                            <br />
+
+                            You cannot delete this department until
+                            those doctors are reassigned or removed.
+                        </div>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Back
+                        </a>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post">
+
+                            <input type="hidden"
+                                   asp-for="DepartmentId" />
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Yes, Delete
+                            </button>
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+                                Cancel
+                            </a>
+
+                        </form>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -35,7 +35,7 @@
 
                     <p>
                         <strong>Date of Birth:</strong>
-                        @Model.DateOfBirth.ToString("yyyy-MM-dd")
+                        @(Model.DateOfBirth?.ToString("yyyy-MM-dd") ?? "Not provided")
                     </p>
 
                     <p>
@@ -87,6 +87,8 @@
                        class="btn btn-outline-secondary w-100">
                         My Profile
                     </a>
+
+                   
 
                 </div>
 
