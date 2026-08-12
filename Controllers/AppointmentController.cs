@@ -1,10 +1,12 @@
-﻿using HospitalAppointmentSystem.Data;
+﻿using HospitalAppointmentSystem.ViewModels;
+using HospitalAppointmentSystem.Data;
 using HospitalAppointmentSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace HospitalAppointmentSystem.Controllers
 {
@@ -35,7 +37,7 @@ namespace HospitalAppointmentSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Book(
-            Appointment appointment)
+            BookAppointmentViewModel model)
         {
             // Get currently logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -45,7 +47,7 @@ namespace HospitalAppointmentSystem.Controllers
                 return Challenge();
             }
 
-            // Find the patient's profile
+            // Find patient's profile
             var patient = await _context.Patients
                 .FirstOrDefaultAsync(p => p.UserId == user.Id);
 
@@ -60,34 +62,34 @@ namespace HospitalAppointmentSystem.Controllers
             }
 
             // Validate appointment date
-            if (appointment.AppointmentDate.Date < DateTime.Today)
+            if (model.AppointmentDate.Date < DateTime.Today)
             {
                 ModelState.AddModelError(
-                    "AppointmentDate",
+                    nameof(model.AppointmentDate),
                     "Appointment date cannot be in the past.");
             }
 
-            // Validate doctor
+            // Find doctor
             var doctor = await _context.Doctors
                 .Include(d => d.Department)
                 .FirstOrDefaultAsync(
-                    d => d.DoctorId == appointment.DoctorId);
+                    d => d.DoctorId == model.DoctorId);
 
             if (doctor == null)
             {
                 ModelState.AddModelError(
-                    "DoctorId",
+                    nameof(model.DoctorId),
                     "Please select a valid doctor.");
             }
 
-            // Check whether doctor already has appointment
+            // Check if doctor is already booked
             var doctorAlreadyBooked =
                 await _context.Appointments.AnyAsync(a =>
-                    a.DoctorId == appointment.DoctorId &&
+                    a.DoctorId == model.DoctorId &&
                     a.AppointmentDate.Date ==
-                        appointment.AppointmentDate.Date &&
+                        model.AppointmentDate.Date &&
                     a.AppointmentTime ==
-                        appointment.AppointmentTime &&
+                        model.AppointmentTime &&
                     a.Status != AppointmentStatus.Cancelled);
 
             if (doctorAlreadyBooked)
@@ -97,20 +99,26 @@ namespace HospitalAppointmentSystem.Controllers
                     "This doctor is already booked for the selected date and time.");
             }
 
+            // If validation failed, reload departments
             if (!ModelState.IsValid)
             {
                 await LoadDepartmentsAsync();
-                return View(appointment);
+                return View(model);
             }
 
-            // Connect appointment to logged-in patient
-            appointment.PatientId = patient.PatientId;
+            // Create Appointment entity
+            var appointment = new Appointment
+            {
+                PatientId = patient.PatientId,
+                DoctorId = model.DoctorId,
+                AppointmentDate = model.AppointmentDate.Date,
+                AppointmentTime = model.AppointmentTime,
+                Reason = model.Reason,
 
-            // Always start with Pending
-            appointment.Status =
-                AppointmentStatus.Pending;
-
-            appointment.CreatedAt = DateTime.Now;
+                // Server controls these values
+                Status = AppointmentStatus.Pending,
+                CreatedAt = DateTime.Now
+            };
 
             _context.Appointments.Add(appointment);
 
