@@ -89,6 +89,32 @@ namespace HospitalAppointmentSystem.Data
                         "Admin");
                 }
             }
+            // Receptionist account
+            var receptionistEmail = "receptionist@hospital.com";
+
+            var receptionistUser =
+                await userManager.FindByEmailAsync(receptionistEmail);
+
+            if (receptionistUser == null)
+            {
+                receptionistUser = new ApplicationUser
+                {
+                    UserName = receptionistEmail,
+                    Email = receptionistEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(
+                    receptionistUser,
+                    "Receptionist@123");
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(
+                        receptionistUser,
+                        "Receptionist");
+                }
+            }
         }
 
             public static async Task AssignPatientRoleAsync(

@@ -1,0 +1,292 @@
+﻿@model HospitalAppointmentSystem.ViewModels.DoctorDashboardViewModel
+
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+}
+
+<div class="container-fluid mt-4">
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="fw-bold">Doctor Dashboard</h1>
+
+            <p class="text-muted mb-1">
+                Welcome, <strong>Dr. @Model.DoctorName</strong>
+            </p>
+
+            <p class="text-muted">
+                @Model.Specialization
+                @if (!string.IsNullOrEmpty(Model.DepartmentName))
+                {
+                    <span> • @Model.DepartmentName</span>
+                }
+            </p>
+        </div>
+
+        <div class="col-md-4 text-md-end">
+            <span class="badge bg-primary fs-6 p-2">
+                @DateTime.Today.ToString("dddd, MMMM dd, yyyy")
+            </span>
+        </div>
+    </div>
+
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+
+        <!-- Total -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Today's Appointments
+                    </h6>
+
+                    <h2 class="fw-bold text-primary">
+                        @Model.TotalAppointmentsToday
+                    </h2>
+
+                    <p class="mb-0 text-muted">
+                        Total appointments
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Pending -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Pending
+                    </h6>
+
+                    <h2 class="fw-bold text-warning">
+                        @Model.PendingAppointments
+                    </h2>
+
+                    <p class="mb-0 text-muted">
+                        Awaiting confirmation
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Confirmed -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Confirmed
+                    </h6>
+
+                    <h2 class="fw-bold text-success">
+                        @Model.ConfirmedAppointments
+                    </h2>
+
+                    <p class="mb-0 text-muted">
+                        Confirmed appointments
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Completed -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Completed
+                    </h6>
+
+                    <h2 class="fw-bold text-secondary">
+                        @Model.CompletedAppointments
+                    </h2>
+
+                    <p class="mb-0 text-muted">
+                        Completed today
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Today's Appointments -->
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                Today's Patients
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.TodayAppointments == null ||
+                 !Model.TodayAppointments.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    <strong>No appointments today.</strong>
+                    You currently have no scheduled patients.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                int count = 1;
+                            }
+
+                            @foreach (var appointment
+                                in Model.TodayAppointments)
+                            {
+                                <tr>
+
+                                    <!-- Number -->
+                                    <td>
+                                        @count
+                                    </td>
+
+                                    <!-- Time -->
+                                    <td>
+                                        <strong>
+                                            @($"{appointment.AppointmentTime.Hours:00}:{appointment.AppointmentTime.Minutes:00}")
+                                        </strong>
+                                    </td>
+
+                                    <!-- Patient -->
+                                    <td>
+
+                                        @if (appointment.Patient != null)
+                                        {
+                                            <strong>
+                                                @appointment.Patient.FullName
+                                            </strong>
+
+                                            @if (!string.IsNullOrEmpty(
+                                                appointment.Patient.PhoneNumber))
+                                            {
+                                                <br />
+
+                                                <small class="text-muted">
+                                                    @appointment.Patient.PhoneNumber
+                                                </small>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Patient information unavailable
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Reason -->
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            appointment.Reason))
+                                        {
+                                            @appointment.Reason
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                No reason provided
+                                            </span>
+                                        }
+                                    </td>
+
+
+                                    <!-- Status -->
+                                    <td>
+
+                                        @if (appointment.Status ==
+                                            HospitalAppointmentSystem.Models.AppointmentStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            HospitalAppointmentSystem.Models.AppointmentStatus.Confirmed)
+                                        {
+                                            <span class="badge bg-success">
+                                                Confirmed
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            HospitalAppointmentSystem.Models.AppointmentStatus.Completed)
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Completed
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            HospitalAppointmentSystem.Models.AppointmentStatus.Cancelled)
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-dark">
+                                                @appointment.Status
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Action -->
+                                    <td>
+
+                                        <a asp-controller="Doctor"
+                                           asp-action="AppointmentDetails"
+                                           asp-route-id="@appointment.AppointmentId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                                count++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

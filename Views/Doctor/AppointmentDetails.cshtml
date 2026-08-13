@@ -1,0 +1,231 @@
+﻿@model HospitalAppointmentSystem.ViewModels.DoctorAppointmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold">
+                Appointment Details
+            </h1>
+
+            <p class="text-muted mb-0">
+                Review patient and appointment information.
+            </p>
+        </div>
+
+        <a asp-controller="Doctor"
+           asp-action="Dashboard"
+           class="btn btn-outline-secondary">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <div class="row">
+
+        <!-- Patient Information -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Patient Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Name:</strong>
+                        @Model.PatientName
+                    </p>
+
+                    <p>
+                        <strong>Date of Birth:</strong>
+                        @Model.DateOfBirth.ToString("yyyy-MM-dd")
+                    </p>
+
+                    <p>
+                        <strong>Gender:</strong>
+                        @(string.IsNullOrEmpty(Model.Gender)
+                            ? "Not provided"
+                            : Model.Gender)
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        @(string.IsNullOrEmpty(Model.PhoneNumber)
+                            ? "Not provided"
+                            : Model.PhoneNumber)
+                    </p>
+
+                    <p>
+                        <strong>Address:</strong>
+                        @(string.IsNullOrEmpty(Model.Address)
+                            ? "Not provided"
+                            : Model.Address)
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Appointment Information -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Appointment Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Date:</strong>
+                        @Model.AppointmentDate.ToString("yyyy-MM-dd")
+                    </p>
+
+                    <p>
+                        <strong>Time:</strong>
+                        @($"{Model.AppointmentTime.Hours:00}:{Model.AppointmentTime.Minutes:00}")
+                    </p>
+
+                    <p>
+                        <strong>Reason for Visit:</strong>
+                    </p>
+
+                    <div class="alert alert-light border">
+                        @(string.IsNullOrWhiteSpace(Model.Reason)
+                            ? "No reason provided."
+                            : Model.Reason)
+                    </div>
+
+                    <p>
+                        <strong>Status:</strong>
+
+                        @if (Model.Status ==
+                            HospitalAppointmentSystem.Models.AppointmentStatus.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+                        }
+                        else if (Model.Status ==
+                            HospitalAppointmentSystem.Models.AppointmentStatus.Confirmed)
+                        {
+                            <span class="badge bg-success">
+                                Confirmed
+                            </span>
+                        }
+                        else if (Model.Status ==
+                            HospitalAppointmentSystem.Models.AppointmentStatus.Completed)
+                        {
+                            <span class="badge bg-secondary">
+                                Completed
+                            </span>
+                        }
+                        else if (Model.Status ==
+                            HospitalAppointmentSystem.Models.AppointmentStatus.Cancelled)
+                        {
+                            <span class="badge bg-danger">
+                                Cancelled
+                            </span>
+                        }
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Actions -->
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h5 class="mb-0">
+                Appointment Actions
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.Status ==
+                HospitalAppointmentSystem.Models.AppointmentStatus.Pending)
+            {
+                <form asp-controller="Doctor"
+                      asp-action="ConfirmAppointment"
+                      asp-route-id="@Model.AppointmentId"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Confirm Appointment
+                    </button>
+
+                </form>
+            }
+
+            @if (Model.Status ==
+                HospitalAppointmentSystem.Models.AppointmentStatus.Confirmed)
+            {
+                <form asp-controller="Doctor"
+                      asp-action="CompleteAppointment"
+                      asp-route-id="@Model.AppointmentId"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Mark as Completed
+                    </button>
+
+                </form>
+            }
+
+            @if (Model.Status ==
+                HospitalAppointmentSystem.Models.AppointmentStatus.Completed)
+            {
+                <a asp-controller="Prescription"
+                   asp-action="Create"
+                   asp-route-appointmentId="@Model.AppointmentId"
+                   class="btn btn-primary">
+                    Write Prescription
+                </a>
+            }
+
+            @if (Model.Status ==
+                HospitalAppointmentSystem.Models.AppointmentStatus.Cancelled)
+            {
+                <span class="text-danger">
+                    This appointment has been cancelled.
+                </span>
+            }
+
+        </div>
+
+    </div>
+
+</div>
