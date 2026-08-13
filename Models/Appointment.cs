@@ -37,5 +37,6 @@ namespace HospitalAppointmentSystem.Models
         // When the appointment was created
         public DateTime CreatedAt { get; set; }
             = DateTime.Now;
+        public Prescription? Prescription { get; set; }
     }
 }

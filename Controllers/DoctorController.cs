@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalAppointmentSystem.Controllers
 {
-        public class DoctorController : Controller
+    [Authorize]    
+    public class DoctorController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -162,6 +163,63 @@ namespace HospitalAppointmentSystem.Controllers
 
             return View(viewModel);
         }
+        // POST: /Doctor/UpdateAppointmentStatus
+        [Authorize(Roles = "Doctor")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAppointmentStatus(
+            int id,
+            AppointmentStatus status)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            // Find logged-in doctor's profile
+            var doctor = await _context.Doctors
+                .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+            if (doctor == null)
+            {
+                return NotFound("Doctor profile not found.");
+            }
+
+            // Find appointment belonging to this doctor
+            var appointment = await _context.Appointments
+                .FirstOrDefaultAsync(a =>
+                    a.AppointmentId == id &&
+                    a.DoctorId == doctor.DoctorId);
+
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+            // Prevent changing a completed appointment
+            if (appointment.Status == AppointmentStatus.Completed)
+            {
+                TempData["ErrorMessage"] =
+                    "A completed appointment cannot be changed.";
+
+                return RedirectToAction(
+                    nameof(AppointmentDetails),
+                    new { id });
+            }
+
+            appointment.Status = status;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                $"Appointment status updated to {status}.";
+
+            return RedirectToAction(
+                nameof(AppointmentDetails),
+                new { id });
+        }
 
 
         // POST: /Doctor/Create
@@ -225,9 +283,24 @@ namespace HospitalAppointmentSystem.Controllers
             }
 
             // Assign Doctor role
-            await _userManager.AddToRoleAsync(
-                user,
-                "Doctor");
+           var roleResult = await _userManager.AddToRoleAsync(
+    user,
+    "Doctor");
+
+if (!roleResult.Succeeded)
+{
+    foreach (var error in roleResult.Errors)
+    {
+        ModelState.AddModelError(
+            "",
+            error.Description);
+    }
+
+
+    await LoadDepartmentsAsync(model.DepartmentId);
+
+    return View(model);
+}
 
             // Create Doctor profile
             var doctor = new Doctor

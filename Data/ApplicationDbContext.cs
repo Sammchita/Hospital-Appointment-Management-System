@@ -19,6 +19,7 @@ namespace HospitalAppointmentSystem.Data
         public DbSet<Department> Departments { get; set; }
 
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
 
         protected override void OnModelCreating(
             ModelBuilder builder)

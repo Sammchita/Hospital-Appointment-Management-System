@@ -4,7 +4,7 @@ namespace HospitalAppointmentSystem.Models
 {
     public class Patient
     {
-        internal string Gender;
+        
         internal string? EmergencyContact;
 
         public int PatientId { get; set; }
@@ -18,9 +18,12 @@ namespace HospitalAppointmentSystem.Models
 
         [Phone]
         public string? PhoneNumber { get; set; }
+        [Required]
+        public string? Gender { get; set; } = string.Empty;
 
         [EmailAddress]
         public string? Email { get; set; }
+
 
         public DateTime? DateOfBirth { get; set; }
 

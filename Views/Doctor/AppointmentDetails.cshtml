@@ -145,6 +145,7 @@
                                 Cancelled
                             </span>
                         }
+
                     </p>
 
                 </div>
@@ -166,7 +167,6 @@
         </div>
 
         <div class="card-body">
-
             @if (Model.Status ==
                 HospitalAppointmentSystem.Models.AppointmentStatus.Pending)
             {
@@ -223,6 +223,99 @@
                     This appointment has been cancelled.
                 </span>
             }
+
+            @if (Model.Status != AppointmentStatus.Completed &&
+     Model.Status != AppointmentStatus.Cancelled)
+{
+    <div class="card mt-4 shadow-sm">
+
+        <div class="card-header">
+            <h5 class="mb-0">Update Appointment Status</h5>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="Doctor"
+                  asp-action="UpdateAppointmentStatus"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.AppointmentId" />
+
+                <div class="mb-3">
+
+                    <label for="status"
+                           class="form-label">
+                        Appointment Status
+                    </label>
+
+                    <select name="status"
+                            id="status"
+                            class="form-select">
+
+                        @if (Model.Status == AppointmentStatus.Pending)
+                        {
+                            <option value="Pending" selected>
+                                Pending
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="Pending">
+                                Pending
+                            </option>
+                        }
+
+                        @if (Model.Status == AppointmentStatus.Confirmed)
+                        {
+                            <option value="Confirmed" selected>
+                                Confirmed
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="Confirmed">
+                                Confirmed
+                            </option>
+                        }
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
+                        <option value="Cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Update Status
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="alert alert-info mt-4">
+
+        This appointment is
+        <strong>@Model.Status</strong>
+        and cannot be changed.
+
+    </div>
+}
+
 
         </div>
 
