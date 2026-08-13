@@ -1,0 +1,298 @@
+﻿@model HospitalAppointmentSystem.ViewModels.ReceptionistAppointmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>Appointment Details</h1>
+
+            <p class="text-muted">
+                Review and manage this appointment.
+            </p>
+        </div>
+
+        <a asp-action="Dashboard"
+           class="btn btn-outline-secondary">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <div class="row">
+
+        <!-- Patient -->
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Patient Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Name:</strong>
+                        @Model.PatientName
+                    </p>
+
+                    <p>
+                        <strong>Date of Birth:</strong>
+
+                        @if (Model.DateOfBirth.HasValue)
+                        {
+                            @Model.DateOfBirth.Value.ToString("yyyy-MM-dd")
+                        }
+                        else
+                        {
+                            <span>Not provided</span>
+                        }
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        @(Model.PhoneNumber ?? "Not provided")
+                    </p>
+
+                    <p>
+                        <strong>Address:</strong>
+                        @(Model.Address ?? "Not provided")
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Doctor -->
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Doctor Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Doctor:</strong>
+                        @Model.DoctorName
+                    </p>
+
+                    <p>
+                        <strong>Specialization:</strong>
+                        @Model.Specialization
+                    </p>
+
+                    <p>
+                        <strong>Department:</strong>
+                        @Model.DepartmentName
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Appointment -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">
+                Appointment Information
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <strong>Date</strong>
+
+                    <p>
+                        @Model.AppointmentDate.ToString("yyyy-MM-dd")
+                    </p>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <strong>Time</strong>
+
+                    <p>
+                        @($"{Model.AppointmentTime.Hours:00}:{Model.AppointmentTime.Minutes:00}")
+                    </p>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <strong>Status</strong>
+
+                    <p>
+
+                        @if (Model.Status ==
+                            AppointmentStatus.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+                        }
+                        else if (Model.Status ==
+                            AppointmentStatus.Confirmed)
+                        {
+                            <span class="badge bg-success">
+                                Confirmed
+                            </span>
+                        }
+                        else if (Model.Status ==
+                            AppointmentStatus.Completed)
+                        {
+                            <span class="badge bg-primary">
+                                Completed
+                            </span>
+                        }
+                        else if (Model.Status ==
+                            AppointmentStatus.Cancelled)
+                        {
+                            <span class="badge bg-danger">
+                                Cancelled
+                            </span>
+                        }
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <strong>Reason for Visit</strong>
+
+            <p class="mt-2">
+                @(string.IsNullOrWhiteSpace(Model.Reason)
+                    ? "No reason provided."
+                    : Model.Reason)
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Actions -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h5 class="mb-0">
+                Appointment Actions
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.Status == AppointmentStatus.Pending)
+            {
+                <form asp-action="Confirm"
+                      asp-route-id="@Model.AppointmentId"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Confirm Appointment
+                    </button>
+
+                </form>
+
+                <form asp-action="Cancel"
+                      asp-route-id="@Model.AppointmentId"
+                      method="post"
+                      class="d-inline ms-2">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Cancel Appointment
+                    </button>
+
+                </form>
+            }
+
+            @if (Model.Status == AppointmentStatus.Confirmed)
+            {
+                <form asp-action="CheckIn"
+                      asp-route-id="@Model.AppointmentId"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Check In Patient
+                    </button>
+
+                </form>
+
+                <form asp-action="Cancel"
+                      asp-route-id="@Model.AppointmentId"
+                      method="post"
+                      class="d-inline ms-2">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Cancel Appointment
+                    </button>
+
+                </form>
+            }
+
+            @if (Model.Status == AppointmentStatus.Completed)
+            {
+                <span class="text-success">
+                    Appointment completed.
+                </span>
+            }
+
+            @if (Model.Status == AppointmentStatus.Cancelled)
+            {
+                <span class="text-danger">
+                    Appointment cancelled.
+                </span>
+            }
+
+        </div>
+
+    </div>
+
+</div>

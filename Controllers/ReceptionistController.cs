@@ -12,189 +12,96 @@ namespace HospitalAppointmentSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public ReceptionistController(
-            ApplicationDbContext context)
+        public ReceptionistController(ApplicationDbContext context)
         {
             _context = context;
         }
 
         // GET: /Receptionist/Dashboard
         [HttpGet]
-        public async Task<IActionResult> Dashboard(
-            DateTime? date)
+        public async Task<IActionResult> Dashboard()
         {
-            var selectedDate =
-                date?.Date ?? DateTime.Today;
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
 
-            var appointments =
-                await _context.Appointments
-                    .Include(a => a.Patient)
-                    .Include(a => a.Doctor)
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
                     .ThenInclude(d => d.Department)
-                    .Where(a =>
-                        a.AppointmentDate.Date ==
-                        selectedDate)
-                    .OrderBy(a => a.AppointmentTime)
-                    .ToListAsync();
+                .Where(a =>
+                    a.AppointmentDate >= today &&
+                    a.AppointmentDate < tomorrow)
+                .OrderBy(a => a.AppointmentTime)
+                .ToListAsync();
 
-            var model =
-                new ReceptionistDashboardViewModel
-                {
-                    SelectedDate = selectedDate,
+            ViewBag.TotalAppointments = appointments.Count;
 
-                    TotalAppointments =
-                        appointments.Count,
+            ViewBag.PendingAppointments =
+                appointments.Count(a =>
+                    a.Status == AppointmentStatus.Pending);
 
-                    PendingAppointments =
-                        appointments.Count(a =>
-                            a.Status ==
-                            AppointmentStatus.Pending),
+            ViewBag.ConfirmedAppointments =
+                appointments.Count(a =>
+                    a.Status == AppointmentStatus.Confirmed);
 
-                    ConfirmedAppointments =
-                        appointments.Count(a =>
-                            a.Status ==
-                            AppointmentStatus.Confirmed),
+            ViewBag.CompletedAppointments =
+                appointments.Count(a =>
+                    a.Status == AppointmentStatus.Completed);
 
-                    CompletedAppointments =
-                        appointments.Count(a =>
-                            a.Status ==
-                            AppointmentStatus.Completed),
+            ViewBag.CancelledAppointments =
+                appointments.Count(a =>
+                    a.Status == AppointmentStatus.Cancelled);
 
-                    CancelledAppointments =
-                        appointments.Count(a =>
-                            a.Status ==
-                            AppointmentStatus.Cancelled),
-
-                    Appointments = appointments
-                };
-
-            return View(model);
+            return View(appointments);
         }
-
-        // POST: /Receptionist/Confirm
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Confirm(
-            int id)
+        // GET: /Receptionist/Details/5
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
         {
-            var appointment =
-                await _context.Appointments
-                    .FirstOrDefaultAsync(
-                        a => a.AppointmentId == id);
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.Department)
+                .FirstOrDefaultAsync(a =>
+                    a.AppointmentId == id);
 
             if (appointment == null)
             {
-                return NotFound();
+                return NotFound("Appointment not found.");
             }
 
-            if (appointment.Status ==
-                AppointmentStatus.Cancelled)
+            var viewModel = new ReceptionistAppointmentDetailsViewModel
             {
-                TempData["ErrorMessage"] =
-                    "A cancelled appointment cannot be confirmed.";
+                AppointmentId = appointment.AppointmentId,
 
-                return RedirectToAction(
-                    nameof(Dashboard));
-            }
+                AppointmentDate = appointment.AppointmentDate,
 
-            appointment.Status =
-                AppointmentStatus.Confirmed;
+                AppointmentTime = appointment.AppointmentTime,
 
-            await _context.SaveChangesAsync();
+                Reason = appointment.Reason,
 
-            TempData["SuccessMessage"] =
-                "Appointment confirmed successfully.";
+                Status = appointment.Status,
 
-            return RedirectToAction(
-                nameof(Dashboard),
-                new
-                {
-                    date = appointment.AppointmentDate
-                });
-        }
+                PatientId = appointment.Patient.PatientId,
 
-        // POST: /Receptionist/Cancel
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Cancel(
-            int id)
-        {
-            var appointment =
-                await _context.Appointments
-                    .FirstOrDefaultAsync(
-                        a => a.AppointmentId == id);
+                PatientName = appointment.Patient.FullName,
 
-            if (appointment == null)
-            {
-                return NotFound();
-            }
+                DateOfBirth = appointment.Patient.DateOfBirth,
 
-            if (appointment.Status ==
-                AppointmentStatus.Completed)
-            {
-                TempData["ErrorMessage"] =
-                    "A completed appointment cannot be cancelled.";
+                PhoneNumber = appointment.Patient.PhoneNumber,
 
-                return RedirectToAction(
-                    nameof(Dashboard));
-            }
+                Address = appointment.Patient.Address,
 
-            appointment.Status =
-                AppointmentStatus.Cancelled;
+                DoctorId = appointment.Doctor.DoctorId,
 
-            await _context.SaveChangesAsync();
+                DoctorName = appointment.Doctor.FullName,
 
-            TempData["SuccessMessage"] =
-                "Appointment cancelled successfully.";
+                Specialization = appointment.Doctor.Specialization,
 
-            return RedirectToAction(
-                nameof(Dashboard),
-                new
-                {
-                    date = appointment.AppointmentDate
-                });
-        }
+                DepartmentName = appointment.Doctor.Department.Name
+            };
 
-        // POST: /Receptionist/Complete
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Complete(
-            int id)
-        {
-            var appointment =
-                await _context.Appointments
-                    .FirstOrDefaultAsync(
-                        a => a.AppointmentId == id);
-
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            if (appointment.Status ==
-                AppointmentStatus.Cancelled)
-            {
-                TempData["ErrorMessage"] =
-                    "A cancelled appointment cannot be completed.";
-
-                return RedirectToAction(
-                    nameof(Dashboard));
-            }
-
-            appointment.Status =
-                AppointmentStatus.Completed;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] =
-                "Appointment marked as completed.";
-
-            return RedirectToAction(
-                nameof(Dashboard),
-                new
-                {
-                    date = appointment.AppointmentDate
-                });
+            return View(viewModel);
         }
     }
 }

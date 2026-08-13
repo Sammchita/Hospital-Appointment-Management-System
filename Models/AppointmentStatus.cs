@@ -4,8 +4,8 @@
     {
         Pending,
         Confirmed,
+        CheckedIn,
         Completed,
-        Cancelled,
-        NoShow
+        Cancelled
     }
 }
