@@ -89,8 +89,28 @@ namespace HospitalAppointmentSystem.Data
                         "Admin");
                 }
             }
-
-
         }
+
+            public static async Task AssignPatientRoleAsync(
+    IServiceProvider serviceProvider)
+        {
+            var userManager =
+                serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var user = await userManager.FindByEmailAsync(
+                "patient@hospital.com");
+
+            if (user != null)
+            {
+                if (!await userManager.IsInRoleAsync(user, "Patient"))
+                {
+                    await userManager.AddToRoleAsync(
+                        user,
+                        "Patient");
+                }
+            }
+        }
+
+
     }
-}
+    }

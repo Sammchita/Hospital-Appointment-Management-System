@@ -1,4 +1,4 @@
-﻿@model HospitalAppointmentSystem.Models.Doctor
+﻿@model HospitalAppointmentSystem.ViewModels.DoctorDashboardViewModel
 
 @{
     ViewData["Title"] = "Doctor Dashboard";
@@ -6,55 +6,67 @@
 
 <div class="container mt-4">
 
-    <div class="mb-4">
-        <h1>Doctor Dashboard</h1>
+    <!-- Doctor Header -->
 
-        <p class="text-muted">
-            Welcome, Dr. @Model.FullName
-        </p>
+    <div class="row mb-4">
+
+        <div class="col">
+
+            <h1>Doctor Dashboard</h1>
+
+            <p class="text-muted">
+                Welcome, Dr. @Model.Doctor.FullName
+            </p>
+
+        </div>
+
     </div>
 
-    <div class="row">
 
-        <!-- Doctor Information -->
-        <div class="col-md-4 mb-4">
+    <!-- Doctor Information -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-4">
 
             <div class="card shadow-sm">
 
                 <div class="card-header">
-                    <h5>My Profile</h5>
+                    <h5 class="mb-0">
+                        My Information
+                    </h5>
                 </div>
 
                 <div class="card-body">
 
                     <p>
                         <strong>Name:</strong>
-                        @Model.FullName
+                        @Model.Doctor.FullName
                     </p>
 
                     <p>
                         <strong>Specialization:</strong>
-                        @Model.Specialization
+                        @Model.Doctor.Specialization
                     </p>
 
                     <p>
                         <strong>Qualification:</strong>
-                        @Model.Qualification
+                        @Model.Doctor.Qualification
                     </p>
 
                     <p>
                         <strong>Department:</strong>
-                        @Model.Department?.Name
+                        @Model.Doctor.Department?.Name
                     </p>
 
                     <p>
                         <strong>Email:</strong>
-                        @Model.Email
+                        @Model.Doctor.Email
                     </p>
 
                     <p>
                         <strong>Phone:</strong>
-                        @Model.PhoneNumber
+                        @Model.Doctor.PhoneNumber
                     </p>
 
                 </div>
@@ -64,24 +76,56 @@
         </div>
 
 
-        <!-- Today's Appointments -->
-        <div class="col-md-8 mb-4">
+        <!-- Today's Appointment Count -->
+
+        <div class="col-md-4">
 
             <div class="card shadow-sm">
 
                 <div class="card-header">
-                    <h5>Today's Appointments</h5>
+                    <h5 class="mb-0">
+                        Today's Patients
+                    </h5>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body text-center">
+
+                    <h1>
+                        @Model.TodayAppointments.Count
+                    </h1>
 
                     <p class="text-muted">
-                        Your appointments for today will appear here.
+                        Appointments today
                     </p>
 
-                    <div class="alert alert-info">
-                        No appointments scheduled for today.
-                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Today's Date -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Today's Date
+                    </h5>
+                </div>
+
+                <div class="card-body text-center">
+
+                    <h4>
+                        @DateTime.Today.ToString("yyyy-MM-dd")
+                    </h4>
+
+                    <p class="text-muted">
+                        Doctor's schedule
+                    </p>
 
                 </div>
 
@@ -92,34 +136,123 @@
     </div>
 
 
-    <!-- Quick Actions -->
+    <!-- Today's Appointments -->
 
-    <div class="row">
+    <div class="card shadow-sm">
 
-        <div class="col-md-4 mb-3">
+        <div class="card-header">
 
-            <a href="#"
-               class="btn btn-primary w-100">
-                Today's Patients
-            </a>
-
-        </div>
-
-        <div class="col-md-4 mb-3">
-
-            <a href="#"
-               class="btn btn-outline-primary w-100">
-                Appointment History
-            </a>
+            <h4 class="mb-0">
+                Today's Appointments
+            </h4>
 
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="card-body">
 
-            <a href="#"
-               class="btn btn-outline-success w-100">
-                Write Prescription
-            </a>
+            @if (!Model.TodayAppointments.Any())
+            {
+                <div class="text-center py-4">
+
+                    <h5>
+                        No appointments today
+                    </h5>
+
+                    <p class="text-muted">
+                        You currently have no scheduled patients.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Gender</th>
+                                <th>Phone</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var appointment
+                                in Model.TodayAppointments)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @appointment.AppointmentTime
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            @appointment.Patient.FullName
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @appointment.Patient.Gender
+                                    </td>
+
+                                    <td>
+                                        @appointment.Patient.PhoneNumber
+                                    </td>
+
+                                    <td>
+                                        @appointment.Reason
+                                    </td>
+
+                                    <td>
+
+                                        @if (appointment.Status ==
+                                            AppointmentStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            AppointmentStatus.Confirmed)
+                                        {
+                                            <span class="badge bg-success">
+                                                Confirmed
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            AppointmentStatus.Completed)
+                                        {
+                                            <span class="badge bg-primary">
+                                                Completed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
 
         </div>
 

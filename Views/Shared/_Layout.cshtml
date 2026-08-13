@@ -23,6 +23,16 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                @if (User.IsInRole("Doctor"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           asp-controller="DoctorDashboard"
+                           asp-action="Index">
+                            Doctor Dashboard
+                        </a>
+                    </li>
+                }
                 @if (User.IsInRole("Patient"))
                 {
                     <li class="nav-item">

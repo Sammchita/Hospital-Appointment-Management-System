@@ -1,5 +1,6 @@
 ﻿using HospitalAppointmentSystem.Data;
 using HospitalAppointmentSystem.Models;
+using HospitalAppointmentSystem.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,27 +22,47 @@ namespace HospitalAppointmentSystem.Controllers
             _userManager = userManager;
         }
 
+        // GET: /DoctorDashboard
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Get currently logged-in doctor's Identity account
-            var userId = _userManager.GetUserId(User);
+            // Get logged-in Identity user
+            var user = await _userManager.GetUserAsync(User);
 
-            if (userId == null)
+            if (user == null)
             {
                 return Challenge();
             }
 
-            // Find Doctor profile connected to this Identity user
+            // Find doctor's profile
             var doctor = await _context.Doctors
                 .Include(d => d.Department)
-                .FirstOrDefaultAsync(d => d.UserId == userId);
+                .FirstOrDefaultAsync(d => d.UserId == user.Id);
 
             if (doctor == null)
             {
-                return NotFound("Doctor profile was not found.");
+                return NotFound(
+                    "Doctor profile could not be found.");
             }
 
-            return View(doctor);
+            // Get today's appointments
+            var today = DateTime.Today;
+
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Where(a =>
+                    a.DoctorId == doctor.DoctorId &&
+                    a.AppointmentDate.Date == today)
+                .OrderBy(a => a.AppointmentTime)
+                .ToListAsync();
+
+            var viewModel = new DoctorDashboardViewModel
+            {
+                Doctor = doctor,
+                TodayAppointments = appointments
+            };
+
+            return View(viewModel);
         }
     }
 }

@@ -1,57 +1,270 @@
-﻿@{
+﻿@model HospitalAppointmentSystem.ViewModels.AdminDashboardViewModel
+
+@{
     ViewData["Title"] = "Admin Dashboard";
 }
 
 <div class="container mt-4">
 
-    <h1>Admin Dashboard</h1>
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="fw-bold">Admin Dashboard</h1>
 
-    <p class="lead">
-        Welcome to the Hospital Administration Panel.
-    </p>
+        <p class="text-muted">
+            Overview of the hospital appointment system.
+        </p>
+    </div>
 
-    <hr />
 
-    <div class="row">
+    <!-- Statistics -->
+    <div class="row g-4 mb-4">
 
+        <!-- Patients -->
         <div class="col-md-3">
-            <div class="card p-3">
-                <h5>Doctors</h5>
-                <p>Manage hospital doctors.</p>
-                <a href="#" class="btn btn-primary">
-                    Manage Doctors
-                </a>
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Total Patients
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        @Model.TotalPatients
+                    </h2>
+
+                    <a asp-controller="Patient"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Patients
+                    </a>
+
+                </div>
             </div>
         </div>
 
+
+        <!-- Doctors -->
         <div class="col-md-3">
-            <div class="card p-3">
-                <h5>Departments</h5>
-                <p>Manage departments.</p>
-                <a href="#" class="btn btn-primary">
-                    Manage Departments
-                </a>
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Total Doctors
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        @Model.TotalDoctors
+                    </h2>
+
+                    <a asp-controller="Doctor"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Doctors
+                    </a>
+
+                </div>
             </div>
         </div>
 
+
+        <!-- Departments -->
         <div class="col-md-3">
-            <div class="card p-3">
-                <h5>Appointments</h5>
-                <p>View all appointments.</p>
-                <a href="#" class="btn btn-primary">
-                    Appointments
-                </a>
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Departments
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        @Model.TotalDepartments
+                    </h2>
+
+                    <a asp-controller="Department"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Departments
+                    </a>
+
+                </div>
             </div>
         </div>
 
+
+        <!-- Appointments -->
         <div class="col-md-3">
-            <div class="card p-3">
-                <h5>Reports</h5>
-                <p>View hospital reports.</p>
-                <a href="#" class="btn btn-primary">
-                    Reports
-                </a>
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Total Appointments
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        @Model.TotalAppointments
+                    </h2>
+
+                    <a asp-controller="Appointment"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Appointments
+                    </a>
+
+                </div>
             </div>
+        </div>
+
+    </div>
+
+
+    <!-- Appointment Status -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Pending</h6>
+                    <h3>@Model.PendingAppointments</h3>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Confirmed</h6>
+                    <h3>@Model.ConfirmedAppointments</h3>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Completed</h6>
+                    <h3>@Model.CompletedAppointments</h3>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Cancelled</h6>
+                    <h3>@Model.CancelledAppointments</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Recent Appointments -->
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h4 class="mb-0">
+                Recent Appointments
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (!Model.RecentAppointments.Any())
+            {
+                <div class="alert alert-info">
+                    No appointments have been created yet.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Department</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var appointment
+                                in Model.RecentAppointments)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @appointment.Patient.FullName
+                                    </td>
+
+                                    <td>
+                                        @appointment.Doctor.FullName
+                                    </td>
+
+                                    <td>
+                                        @appointment.Doctor.Department.Name
+                                    </td>
+
+                                    <td>
+                                        @appointment.AppointmentDate.ToString("yyyy-MM-dd")
+                                    </td>
+
+                                    <td>
+                                        @appointment.AppointmentTime.Hours.ToString("D2"):
+                                        @appointment.AppointmentTime.Minutes.ToString("D2")
+                                    </td>
+
+                                    <td>
+                                        @if (appointment.Status ==
+                                            AppointmentStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            AppointmentStatus.Confirmed)
+                                        {
+                                            <span class="badge bg-primary">
+                                                Confirmed
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            AppointmentStatus.Completed)
+                                        {
+                                            <span class="badge bg-success">
+                                                Completed
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            AppointmentStatus.Cancelled)
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
+                                            </span>
+                                        }
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
         </div>
 
     </div>
