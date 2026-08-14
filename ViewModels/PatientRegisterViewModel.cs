@@ -12,7 +12,7 @@ namespace HospitalAppointmentSystem.ViewModels
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Date of Birth")]
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
 
         [Required]
         [StringLength(20)]

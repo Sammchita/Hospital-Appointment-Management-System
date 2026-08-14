@@ -20,11 +20,35 @@ namespace HospitalAppointmentSystem.Data
 
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }
+        public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
 
         protected override void OnModelCreating(
             ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<Prescription>()
+    .HasOne(p => p.Appointment)
+    .WithOne(a => a.Prescription)
+    .HasForeignKey<Prescription>(p => p.AppointmentId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Prescription>()
+                .HasOne(p => p.Doctor)
+                .WithMany(d => d.Prescriptions)
+                .HasForeignKey(p => p.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Prescription>()
+                .HasOne(p => p.Patient)
+                .WithMany(p => p.Prescriptions)
+                .HasForeignKey(p => p.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<PrescriptionItem>()
+                .HasOne(i => i.Prescription)
+                    .WithMany(p => p.Items)
+                .HasForeignKey(i => i.PrescriptionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Department → Doctors
             builder.Entity<Doctor>()

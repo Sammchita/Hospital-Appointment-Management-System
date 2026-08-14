@@ -148,6 +148,7 @@ namespace HospitalAppointmentSystem.Controllers
         }
 
         // GET: /Appointment
+        // GET: /Appointment
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -170,13 +171,16 @@ namespace HospitalAppointmentSystem.Controllers
 
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor)
-                .ThenInclude(d => d.Department)
+                    .ThenInclude(d => d.Department)
+                .Include(a => a.Prescription)
                 .Where(a => a.PatientId == patient.PatientId)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ThenBy(a => a.AppointmentTime)
                 .ToListAsync();
 
             return View(appointments);
+
+
         }
 
         // POST: /Appointment/Cancel/5

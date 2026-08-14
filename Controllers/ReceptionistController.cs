@@ -17,7 +17,11 @@ namespace HospitalAppointmentSystem.Controllers
             _context = context;
         }
 
+        // =========================================================
+        // RECEPTIONIST DASHBOARD
         // GET: /Receptionist/Dashboard
+        // =========================================================
+
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
@@ -34,7 +38,8 @@ namespace HospitalAppointmentSystem.Controllers
                 .OrderBy(a => a.AppointmentTime)
                 .ToListAsync();
 
-            ViewBag.TotalAppointments = appointments.Count;
+            ViewBag.TotalAppointments =
+                appointments.Count;
 
             ViewBag.PendingAppointments =
                 appointments.Count(a =>
@@ -43,6 +48,10 @@ namespace HospitalAppointmentSystem.Controllers
             ViewBag.ConfirmedAppointments =
                 appointments.Count(a =>
                     a.Status == AppointmentStatus.Confirmed);
+
+            ViewBag.CheckedInAppointments =
+                appointments.Count(a =>
+                    a.Status == AppointmentStatus.CheckedIn);
 
             ViewBag.CompletedAppointments =
                 appointments.Count(a =>
@@ -54,7 +63,13 @@ namespace HospitalAppointmentSystem.Controllers
 
             return View(appointments);
         }
+
+
+        // =========================================================
+        // APPOINTMENT DETAILS
         // GET: /Receptionist/Details/5
+        // =========================================================
+
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -70,38 +85,182 @@ namespace HospitalAppointmentSystem.Controllers
                 return NotFound("Appointment not found.");
             }
 
-            var viewModel = new ReceptionistAppointmentDetailsViewModel
-            {
-                AppointmentId = appointment.AppointmentId,
+            var viewModel =
+                new ReceptionistAppointmentDetailsViewModel
+                {
+                    AppointmentId =
+                        appointment.AppointmentId,
 
-                AppointmentDate = appointment.AppointmentDate,
+                    AppointmentDate =
+                        appointment.AppointmentDate,
 
-                AppointmentTime = appointment.AppointmentTime,
+                    AppointmentTime =
+                        appointment.AppointmentTime,
 
-                Reason = appointment.Reason,
+                    Reason =
+                        appointment.Reason,
 
-                Status = appointment.Status,
+                    Status =
+                        appointment.Status,
 
-                PatientId = appointment.Patient.PatientId,
+                    PatientId =
+                        appointment.Patient.PatientId,
 
-                PatientName = appointment.Patient.FullName,
+                    PatientName =
+                        appointment.Patient.FullName,
 
-                DateOfBirth = appointment.Patient.DateOfBirth,
+                    PhoneNumber =
+                        appointment.Patient.PhoneNumber,
 
-                PhoneNumber = appointment.Patient.PhoneNumber,
+                    Address =
+                        appointment.Patient.Address,
 
-                Address = appointment.Patient.Address,
+                    DoctorId =
+                        appointment.Doctor.DoctorId,
 
-                DoctorId = appointment.Doctor.DoctorId,
+                    DoctorName =
+                        appointment.Doctor.FullName,
 
-                DoctorName = appointment.Doctor.FullName,
+                    Specialization =
+                        appointment.Doctor.Specialization,
 
-                Specialization = appointment.Doctor.Specialization,
-
-                DepartmentName = appointment.Doctor.Department.Name
-            };
+                    DepartmentName =
+                        appointment.Doctor.Department.Name
+                };
 
             return View(viewModel);
+        }
+
+
+        // =========================================================
+        // CONFIRM APPOINTMENT
+        // POST: /Receptionist/ConfirmAppointment
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmAppointment(int id)
+        {
+            var appointment =
+                await _context.Appointments
+                    .FirstOrDefaultAsync(a =>
+                        a.AppointmentId == id);
+
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+            // Only Pending appointments can be confirmed
+            if (appointment.Status !=
+                AppointmentStatus.Pending)
+            {
+                TempData["ErrorMessage"] =
+                    "Only pending appointments can be confirmed.";
+
+                return RedirectToAction(
+                    nameof(Dashboard));
+            }
+
+            appointment.Status =
+                AppointmentStatus.Confirmed;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Appointment confirmed successfully.";
+
+            return RedirectToAction(
+                nameof(Dashboard));
+        }
+
+
+        // =========================================================
+        // CHECK IN PATIENT
+        // POST: /Receptionist/CheckIn
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckIn(int id)
+        {
+            var appointment =
+                await _context.Appointments
+                    .FirstOrDefaultAsync(a =>
+                        a.AppointmentId == id);
+
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+            // Patient should be confirmed before check-in
+            if (appointment.Status !=
+                AppointmentStatus.Confirmed)
+            {
+                TempData["ErrorMessage"] =
+                    "Only confirmed appointments can be checked in.";
+
+                return RedirectToAction(
+                    nameof(Dashboard));
+            }
+
+            appointment.Status =
+                AppointmentStatus.CheckedIn;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Patient checked in successfully.";
+
+            return RedirectToAction(
+                nameof(Dashboard));
+        }
+
+
+        // =========================================================
+        // CANCEL APPOINTMENT
+        // POST: /Receptionist/CancelAppointment
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelAppointment(int id)
+        {
+            var appointment =
+                await _context.Appointments
+                    .FirstOrDefaultAsync(a =>
+                        a.AppointmentId == id);
+
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+            // Completed and already cancelled appointments
+            // cannot be cancelled.
+            if (appointment.Status ==
+                    AppointmentStatus.Completed ||
+                appointment.Status ==
+                    AppointmentStatus.Cancelled)
+            {
+                TempData["ErrorMessage"] =
+                    "This appointment cannot be cancelled.";
+
+                return RedirectToAction(
+                    nameof(Dashboard));
+            }
+
+            appointment.Status =
+                AppointmentStatus.Cancelled;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Appointment cancelled successfully.";
+
+            return RedirectToAction(
+                nameof(Dashboard));
         }
     }
 }

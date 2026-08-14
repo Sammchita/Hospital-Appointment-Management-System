@@ -1,0 +1,371 @@
+﻿@model HospitalAppointmentSystem.Models.Prescription
+
+@{
+    ViewData["Title"] = "Prescription Details";
+}
+
+<div class="container mt-4 mb-5">
+
+    <!-- Page Header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold">
+                Prescription Details
+            </h1>
+
+            <p class="text-muted mb-0">
+                Your consultation and prescribed medicines.
+            </p>
+        </div>
+
+        <a asp-controller="Appointment"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Back to My Appointments
+
+        </a>
+
+    </div>
+
+
+    <!-- Prescription Card -->
+
+    <div class="card shadow-sm border-0">
+
+        <!-- Header -->
+
+        <div class="card-header bg-primary text-white py-3">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h4 class="mb-0">
+                    Medical Prescription
+                </h4>
+
+                <span>
+                    @Model.CreatedAt.ToString("dd MMM yyyy")
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body p-4">
+
+
+            <!-- Doctor and Patient Information -->
+
+            <div class="row mb-4">
+
+                <!-- Doctor -->
+
+                <div class="col-md-6">
+
+                    <h5 class="fw-bold mb-3">
+                        Doctor Information
+                    </h5>
+
+                    <p class="mb-1">
+                        <strong>Doctor:</strong>
+                        Dr. @Model.Doctor.FullName
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Specialization:</strong>
+                        @Model.Doctor.Specialization
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Department:</strong>
+                        @Model.Doctor.Department.Name
+                    </p>
+
+                </div>
+
+
+                <!-- Patient -->
+
+                <div class="col-md-6">
+
+                    <h5 class="fw-bold mb-3">
+                        Patient Information
+                    </h5>
+
+                    <p class="mb-1">
+                        <strong>Patient:</strong>
+                        @Model.Patient.FullName
+                    </p>
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.Patient.PhoneNumber))
+                    {
+                        <p class="mb-1">
+                            <strong>Phone:</strong>
+                            @Model.Patient.PhoneNumber
+                        </p>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <hr />
+
+
+            <!-- Appointment Information -->
+
+            <div class="mb-4">
+
+                <h5 class="fw-bold mb-3">
+                    Consultation Information
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        <strong>Date:</strong>
+
+                        <br />
+
+                        @Model.Appointment.AppointmentDate
+                        .ToString("dd MMM yyyy")
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <strong>Time:</strong>
+
+                        <br />
+
+                        @Model.Appointment.AppointmentTime
+                        .ToString("hh\\:mm")
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <strong>Reason for Visit:</strong>
+
+                        <br />
+
+                        @(string.IsNullOrWhiteSpace(
+                            Model.Appointment.Reason)
+                            ? "Not provided"
+                            : Model.Appointment.Reason)
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr />
+
+
+            <!-- Diagnosis -->
+
+            <div class="mb-4">
+
+                <h5 class="fw-bold mb-3">
+                    Diagnosis
+                </h5>
+
+                <div class="alert alert-info">
+
+                    @Model.Diagnosis
+
+                </div>
+
+            </div>
+
+
+            <!-- Medicines -->
+
+            <div class="mb-4">
+
+                <h5 class="fw-bold mb-3">
+                    Prescribed Medicines
+                </h5>
+
+                @if (Model.Items != null &&
+                     Model.Items.Any())
+                {
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered align-middle">
+
+                            <thead class="table-light">
+
+                                <tr>
+
+                                    <th>
+                                        Medicine
+                                    </th>
+
+                                    <th>
+                                        Dosage
+                                    </th>
+
+                                    <th>
+                                        Frequency
+                                    </th>
+
+                                    <th>
+                                        Duration
+                                    </th>
+
+                                    <th>
+                                        Instructions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                @item.MedicineName
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(
+                                                item.Dosage)
+                                                ? "—"
+                                                : item.Dosage)
+                                        </td>
+
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(
+                                                item.Frequency)
+                                                ? "—"
+                                                : item.Frequency)
+                                        </td>
+
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(
+                                                item.Duration)
+                                                ? "—"
+                                                : item.Duration)
+                                        </td>
+
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(
+                                                item.Instructions)
+                                                ? "—"
+                                                : item.Instructions)
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-secondary">
+
+                        No medicines were prescribed.
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- Medicine Summary -->
+            @if (!string.IsNullOrWhiteSpace(Model.Medicines))
+            {
+                <div class="mb-4">
+
+                    <h5 class="fw-bold mb-3">
+                        Prescription Summary
+                    </h5>
+
+                    <div class="bg-light border rounded p-3">
+
+                        @foreach (
+                            var medicine in Model.Medicines
+                                .Split(
+                                    Environment.NewLine,
+                                    StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <div class="mb-2">
+                                💊 @medicine
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            }
+
+
+            <!-- Doctor Notes -->
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <div class="mb-4">
+
+                    <h5 class="fw-bold mb-3">
+                        Doctor's Notes
+                    </h5>
+
+                    <div class="alert alert-warning">
+
+                        @Model.Notes
+
+                    </div>
+
+                </div>
+            }
+
+
+            <!-- Footer -->
+
+            <hr />
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <small class="text-muted">
+
+                    Prescription created on
+                    @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+
+                </small>
+
+                <a asp-controller="Appointment"
+                   asp-action="Index"
+                   class="btn btn-primary">
+
+                    Back to Appointments
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

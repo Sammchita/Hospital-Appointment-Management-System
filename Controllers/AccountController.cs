@@ -86,7 +86,6 @@ namespace HospitalAppointmentSystem.Controllers
             {
                 UserId = user.Id,
                 FullName = model.FullName,
-                DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
                 PhoneNumber = model.PhoneNumber,
                 Address = model.Address,

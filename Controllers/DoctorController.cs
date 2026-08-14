@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalAppointmentSystem.Controllers
 {
-    [Authorize]    
+    [Authorize]
     public class DoctorController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,11 +23,15 @@ namespace HospitalAppointmentSystem.Controllers
             _userManager = userManager;
         }
 
+
+        // =========================================================
+        // DOCTOR DASHBOARD
         // GET: /Doctor/Dashboard
+        // =========================================================
+
         [Authorize(Roles = "Doctor")]
         [HttpGet]
         public async Task<IActionResult> Dashboard()
-
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -36,7 +40,6 @@ namespace HospitalAppointmentSystem.Controllers
                 return Challenge();
             }
 
-            // Find doctor's profile
             var doctor = await _context.Doctors
                 .Include(d => d.Department)
                 .FirstOrDefaultAsync(d => d.UserId == user.Id);
@@ -49,7 +52,6 @@ namespace HospitalAppointmentSystem.Controllers
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            // Get today's appointments
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Where(a =>
@@ -63,7 +65,7 @@ namespace HospitalAppointmentSystem.Controllers
             {
                 DoctorName = doctor.FullName,
                 Specialization = doctor.Specialization,
-                DepartmentName = doctor.Department.Name,
+                DepartmentName = doctor.Department?.Name ?? "Not assigned",
 
                 TotalAppointmentsToday = appointments.Count,
 
@@ -82,10 +84,15 @@ namespace HospitalAppointmentSystem.Controllers
             return View(viewModel);
         }
 
-        // GET: /Doctor
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Index()
 
+        // =========================================================
+        // ADMIN - VIEW ALL DOCTORS
+        // GET: /Doctor
+        // =========================================================
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
             var doctors = await _context.Doctors
                 .Include(d => d.Department)
@@ -95,7 +102,12 @@ namespace HospitalAppointmentSystem.Controllers
             return View(doctors);
         }
 
+
+        // =========================================================
+        // ADMIN - CREATE DOCTOR
         // GET: /Doctor/Create
+        // =========================================================
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -105,124 +117,12 @@ namespace HospitalAppointmentSystem.Controllers
             return View();
         }
 
-        // GET: /Doctor/AppointmentDetails/5
-        [Authorize(Roles = "Doctor")]
-        [HttpGet]
-        public async Task<IActionResult> AppointmentDetails(int id)
-        {
-            var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            // Find logged-in doctor's profile
-            var doctor = await _context.Doctors
-                .FirstOrDefaultAsync(d => d.UserId == user.Id);
-
-            if (doctor == null)
-            {
-                return NotFound("Doctor profile not found.");
-            }
-
-            // Find appointment belonging to this doctor
-            var appointment = await _context.Appointments
-                .Include(a => a.Patient)
-                .FirstOrDefaultAsync(a =>
-                    a.AppointmentId == id &&
-                    a.DoctorId == doctor.DoctorId);
-
-            if (appointment == null)
-            {
-                return NotFound("Appointment not found.");
-            }
-
-            var viewModel = new DoctorAppointmentDetailsViewModel
-            {
-                AppointmentId = appointment.AppointmentId,
-
-                AppointmentDate = appointment.AppointmentDate,
-
-                AppointmentTime = appointment.AppointmentTime,
-
-                Reason = appointment.Reason,
-
-                Status = appointment.Status,
-
-                PatientId = appointment.Patient.PatientId,
-
-                PatientName = appointment.Patient.FullName,
-
-                Gender = appointment.Patient.Gender,
-
-                PhoneNumber = appointment.Patient.PhoneNumber,
-
-                Address = appointment.Patient.Address
-            };
-
-            return View(viewModel);
-        }
-        // POST: /Doctor/UpdateAppointmentStatus
-        [Authorize(Roles = "Doctor")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateAppointmentStatus(
-            int id,
-            AppointmentStatus status)
-        {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            // Find logged-in doctor's profile
-            var doctor = await _context.Doctors
-                .FirstOrDefaultAsync(d => d.UserId == user.Id);
-
-            if (doctor == null)
-            {
-                return NotFound("Doctor profile not found.");
-            }
-
-            // Find appointment belonging to this doctor
-            var appointment = await _context.Appointments
-                .FirstOrDefaultAsync(a =>
-                    a.AppointmentId == id &&
-                    a.DoctorId == doctor.DoctorId);
-
-            if (appointment == null)
-            {
-                return NotFound("Appointment not found.");
-            }
-
-            // Prevent changing a completed appointment
-            if (appointment.Status == AppointmentStatus.Completed)
-            {
-                TempData["ErrorMessage"] =
-                    "A completed appointment cannot be changed.";
-
-                return RedirectToAction(
-                    nameof(AppointmentDetails),
-                    new { id });
-            }
-
-            appointment.Status = status;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] =
-                $"Appointment status updated to {status}.";
-
-            return RedirectToAction(
-                nameof(AppointmentDetails),
-                new { id });
-        }
-
-
+        // =========================================================
+        // ADMIN - CREATE DOCTOR
         // POST: /Doctor/Create
+        // =========================================================
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -231,16 +131,14 @@ namespace HospitalAppointmentSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await LoadDepartmentsAsync(
-                    model.DepartmentId);
+                await LoadDepartmentsAsync(model.DepartmentId);
 
                 return View(model);
             }
 
-            // Check if email already exists
+            // Check whether email already exists
             var existingUser =
-                await _userManager.FindByEmailAsync(
-                    model.Email);
+                await _userManager.FindByEmailAsync(model.Email);
 
             if (existingUser != null)
             {
@@ -248,13 +146,16 @@ namespace HospitalAppointmentSystem.Controllers
                     "Email",
                     "An account with this email already exists.");
 
-                await LoadDepartmentsAsync(
-                    model.DepartmentId);
+                await LoadDepartmentsAsync(model.DepartmentId);
 
                 return View(model);
             }
 
-            // Create Identity account
+
+            // =====================================================
+            // CREATE IDENTITY ACCOUNT
+            // =====================================================
+
             var user = new ApplicationUser
             {
                 UserName = model.Email,
@@ -276,33 +177,43 @@ namespace HospitalAppointmentSystem.Controllers
                         error.Description);
                 }
 
-                await LoadDepartmentsAsync(
-                    model.DepartmentId);
+                await LoadDepartmentsAsync(model.DepartmentId);
 
                 return View(model);
             }
 
-            // Assign Doctor role
-           var roleResult = await _userManager.AddToRoleAsync(
-    user,
-    "Doctor");
 
-if (!roleResult.Succeeded)
-{
-    foreach (var error in roleResult.Errors)
-    {
-        ModelState.AddModelError(
-            "",
-            error.Description);
-    }
+            // =====================================================
+            // ASSIGN DOCTOR ROLE
+            // =====================================================
+
+            var roleResult =
+                await _userManager.AddToRoleAsync(
+                    user,
+                    "Doctor");
+
+            if (!roleResult.Succeeded)
+            {
+                foreach (var error in roleResult.Errors)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        error.Description);
+                }
+
+                // Remove the user if role assignment failed
+                await _userManager.DeleteAsync(user);
+
+                await LoadDepartmentsAsync(model.DepartmentId);
+
+                return View(model);
+            }
 
 
-    await LoadDepartmentsAsync(model.DepartmentId);
+            // =====================================================
+            // CREATE DOCTOR PROFILE
+            // =====================================================
 
-    return View(model);
-}
-
-            // Create Doctor profile
             var doctor = new Doctor
             {
                 UserId = user.Id,
@@ -323,6 +234,147 @@ if (!roleResult.Succeeded)
 
             return RedirectToAction(nameof(Index));
         }
+
+
+        // =========================================================
+        // DOCTOR - APPOINTMENT DETAILS
+        // GET: /Doctor/AppointmentDetails/5
+        // =========================================================
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet]
+        public async Task<IActionResult> AppointmentDetails(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            var doctor = await _context.Doctors
+                .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+            if (doctor == null)
+            {
+                return NotFound("Doctor profile not found.");
+            }
+
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient)
+                .FirstOrDefaultAsync(a =>
+                    a.AppointmentId == id &&
+                    a.DoctorId == doctor.DoctorId);
+
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+            var viewModel =
+                new DoctorAppointmentDetailsViewModel
+                {
+                    AppointmentId = appointment.AppointmentId,
+
+                    AppointmentDate =
+                        appointment.AppointmentDate,
+
+                    AppointmentTime =
+                        appointment.AppointmentTime,
+
+                    Reason =
+                        appointment.Reason,
+
+                    Status =
+                        appointment.Status,
+
+                    PatientId =
+                        appointment.Patient.PatientId,
+
+                    PatientName =
+                        appointment.Patient.FullName,
+
+                    Gender =
+                        appointment.Patient.Gender,
+
+                    PhoneNumber =
+                        appointment.Patient.PhoneNumber,
+
+                    Address =
+                        appointment.Patient.Address
+                };
+
+            return View(viewModel);
+        }
+
+
+        // =========================================================
+        // DOCTOR - UPDATE APPOINTMENT STATUS
+        // POST: /Doctor/UpdateAppointmentStatus
+        // =========================================================
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAppointmentStatus(
+            int id,
+            AppointmentStatus status)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            var doctor = await _context.Doctors
+                .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+            if (doctor == null)
+            {
+                return NotFound("Doctor profile not found.");
+            }
+
+            var appointment = await _context.Appointments
+                .FirstOrDefaultAsync(a =>
+                    a.AppointmentId == id &&
+                    a.DoctorId == doctor.DoctorId);
+
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+
+            // Prevent changing completed appointment
+            if (appointment.Status ==
+                AppointmentStatus.Completed)
+            {
+                TempData["ErrorMessage"] =
+                    "A completed appointment cannot be changed.";
+
+                return RedirectToAction(
+                    nameof(AppointmentDetails),
+                    new { id });
+            }
+
+
+            appointment.Status = status;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                $"Appointment status updated to {status}.";
+
+            return RedirectToAction(
+                nameof(AppointmentDetails),
+                new { id });
+        }
+
+
+        // =========================================================
+        // LOAD DEPARTMENTS
+        // =========================================================
 
         private async Task LoadDepartmentsAsync(
             int? selectedDepartmentId = null)

@@ -6,9 +6,13 @@
 
 <div class="container mt-4">
 
+    <!-- Header -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
             <h1>Receptionist Dashboard</h1>
+
             <p class="text-muted mb-0">
                 Manage today's hospital appointments.
             </p>
@@ -19,15 +23,48 @@
                 @DateTime.Today.ToString("dd MMM yyyy")
             </span>
         </div>
+
     </div>
+
+
+    <!-- Success / Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
 
     <!-- Statistics -->
 
     <div class="row g-3 mb-4">
 
+        <!-- Total -->
+
         <div class="col-md-3">
+
             <div class="card shadow-sm border-0">
+
                 <div class="card-body">
+
                     <h6 class="text-muted">
                         Today's Appointments
                     </h6>
@@ -35,13 +72,22 @@
                     <h2>
                         @ViewBag.TotalAppointments
                     </h2>
+
                 </div>
+
             </div>
+
         </div>
 
+
+        <!-- Pending -->
+
         <div class="col-md-3">
+
             <div class="card shadow-sm border-0">
+
                 <div class="card-body">
+
                     <h6 class="text-muted">
                         Pending
                     </h6>
@@ -49,13 +95,22 @@
                     <h2 class="text-warning">
                         @ViewBag.PendingAppointments
                     </h2>
+
                 </div>
+
             </div>
+
         </div>
 
+
+        <!-- Confirmed -->
+
         <div class="col-md-3">
+
             <div class="card shadow-sm border-0">
+
                 <div class="card-body">
+
                     <h6 class="text-muted">
                         Confirmed
                     </h6>
@@ -63,13 +118,22 @@
                     <h2 class="text-success">
                         @ViewBag.ConfirmedAppointments
                     </h2>
+
                 </div>
+
             </div>
+
         </div>
 
+
+        <!-- Completed -->
+
         <div class="col-md-3">
+
             <div class="card shadow-sm border-0">
+
                 <div class="card-body">
+
                     <h6 class="text-muted">
                         Completed
                     </h6>
@@ -77,8 +141,59 @@
                     <h2 class="text-primary">
                         @ViewBag.CompletedAppointments
                     </h2>
+
                 </div>
+
             </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Checked In Statistics -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Checked In
+                    </h6>
+
+                    <h2 class="text-info">
+                        @ViewBag.CheckedInAppointments
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Cancelled
+                    </h6>
+
+                    <h2 class="text-danger">
+                        @ViewBag.CancelledAppointments
+                    </h2>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -89,10 +204,13 @@
     <div class="card shadow-sm border-0">
 
         <div class="card-header bg-white">
+
             <h4 class="mb-0">
                 Today's Appointments
             </h4>
+
         </div>
+
 
         <div class="card-body">
 
@@ -104,21 +222,33 @@
             }
             else
             {
+
                 <div class="table-responsive">
 
                     <table class="table table-hover align-middle">
 
                         <thead>
+
                             <tr>
+
                                 <th>Time</th>
+
                                 <th>Patient</th>
+
                                 <th>Doctor</th>
+
                                 <th>Department</th>
+
                                 <th>Reason</th>
+
                                 <th>Status</th>
+
                                 <th>Action</th>
+
                             </tr>
+
                         </thead>
+
 
                         <tbody>
 
@@ -126,66 +256,264 @@
                             {
                                 <tr>
 
+                                    <!-- Time -->
+
                                     <td>
-                                        @appointment.AppointmentTime
                                         @($"{appointment.AppointmentTime.Hours:00}:{appointment.AppointmentTime.Minutes:00}")
                                     </td>
 
+
+                                    <!-- Patient -->
+
                                     <td>
-                                        @appointment.Patient.FullName
+                                        <strong>
+                                            @appointment.Patient.FullName
+                                        </strong>
                                     </td>
+
+
+                                    <!-- Doctor -->
 
                                     <td>
                                         @appointment.Doctor.FullName
                                     </td>
 
+
+                                    <!-- Department -->
+
                                     <td>
-                                        @appointment.Doctor
-                                            .Department.Name
+                                        @appointment.Doctor.Department.Name
                                     </td>
 
-                                    <td>
-                                        @appointment.Reason
-                                    </td>
+
+                                    <!-- Reason -->
 
                                     <td>
 
-                                        @if (appointment.Status ==
-                                            AppointmentStatus.Pending)
+                                        @if (string.IsNullOrWhiteSpace(
+                                            appointment.Reason))
                                         {
-                                            <span class="badge bg-warning text-dark">
-                                                Pending
-                                            </span>
-                                        }
-                                        else if (appointment.Status ==
-                                            AppointmentStatus.Confirmed)
-                                        {
-                                            <span class="badge bg-success">
-                                                Confirmed
-                                            </span>
-                                        }
-                                        else if (appointment.Status ==
-                                            AppointmentStatus.Completed)
-                                        {
-                                            <span class="badge bg-primary">
-                                                Completed
+                                            <span class="text-muted">
+                                                Not provided
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-danger">
-                                                Cancelled
-                                            </span>
+                                            @appointment.Reason
                                         }
 
                                     </td>
 
+
+                                    <!-- Status -->
+
                                     <td>
-                                        <a asp-action="Details"
-                                           asp-route-id="@appointment.AppointmentId"
-                                           class="btn btn-sm btn-outline-primary">
-                                            View
-                                        </a>
+
+                                        @switch (appointment.Status)
+                                        {
+                                            case AppointmentStatus.Pending:
+
+                                                <span class="badge bg-warning text-dark">
+                                                    Pending
+                                                </span>
+
+                                                break;
+
+
+                                            case AppointmentStatus.Confirmed:
+
+                                                <span class="badge bg-success">
+                                                    Confirmed
+                                                </span>
+
+                                                break;
+
+
+                                            case AppointmentStatus.CheckedIn:
+
+                                                <span class="badge bg-info text-dark">
+                                                    Checked In
+                                                </span>
+
+                                                break;
+
+
+                                            case AppointmentStatus.Completed:
+
+                                                <span class="badge bg-primary">
+                                                    Completed
+                                                </span>
+
+                                                break;
+
+
+                                            case AppointmentStatus.Cancelled:
+
+                                                <span class="badge bg-danger">
+                                                    Cancelled
+                                                </span>
+
+                                                break;
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Actions -->
+
+                                    <td>
+
+                                        <div class="d-flex gap-1 flex-wrap">
+
+
+                                            <!-- View -->
+
+                                            <a asp-action="Details"
+                                               asp-route-id="@appointment.AppointmentId"
+                                               class="btn btn-sm btn-outline-primary">
+
+                                                View
+
+                                            </a>
+
+
+                                            <!-- Pending -->
+                                            @if (appointment.Status ==
+                                                                                            AppointmentStatus.Pending)
+                                            {
+
+                                                <form asp-action="ConfirmAppointment"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@appointment.AppointmentId" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-success">
+
+                                                        Confirm
+
+                                                    </button>
+
+                                                </form>
+
+
+                                                <form asp-action="CancelAppointment"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@appointment.AppointmentId" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger">
+
+                                                        Cancel
+
+                                                    </button>
+
+                                                </form>
+
+                                            }
+
+
+                                            <!-- Confirmed -->
+                                            @if (appointment.Status ==
+                                                                                            AppointmentStatus.Confirmed)
+                                            {
+
+                                                <form asp-action="CheckIn"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@appointment.AppointmentId" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-info">
+
+                                                        Check In
+
+                                                    </button>
+
+                                                </form>
+
+
+                                                <form asp-action="CancelAppointment"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@appointment.AppointmentId" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger">
+
+                                                        Cancel
+
+                                                    </button>
+
+                                                </form>
+
+                                            }
+
+
+                                            <!-- Checked In -->
+                                            @if (appointment.Status ==
+                                                                                            AppointmentStatus.CheckedIn)
+                                            {
+
+                                                <span class="badge bg-info text-dark align-self-center">
+
+                                                    Waiting for Doctor
+
+                                                </span>
+
+                                            }
+
+
+                                            <!-- Completed -->
+                                            @if (appointment.Status ==
+                                                                                            AppointmentStatus.Completed)
+                                            {
+
+                                                <span class="badge bg-primary align-self-center">
+
+                                                    Completed
+
+                                                </span>
+
+                                            }
+
+
+                                            <!-- Cancelled -->
+                                            @if (appointment.Status ==
+                                                                                            AppointmentStatus.Cancelled)
+                                            {
+
+                                                <span class="badge bg-danger align-self-center">
+
+                                                    Cancelled
+
+                                                </span>
+
+                                            }
+
+                                        </div>
+
                                     </td>
 
                                 </tr>
@@ -196,6 +524,7 @@
                     </table>
 
                 </div>
+
             }
 
         </div>

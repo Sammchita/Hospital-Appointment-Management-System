@@ -17,6 +17,7 @@
 
             <p class="text-muted">
                 @Model.Specialization
+
                 @if (!string.IsNullOrEmpty(Model.DepartmentName))
                 {
                     <span> • @Model.DepartmentName</span>
@@ -159,8 +160,7 @@
                                 int count = 1;
                             }
 
-                            @foreach (var appointment
-                                in Model.TodayAppointments)
+                            @foreach (var appointment in Model.TodayAppointments)
                             {
                                 <tr>
 
@@ -169,12 +169,14 @@
                                         @count
                                     </td>
 
+
                                     <!-- Time -->
                                     <td>
                                         <strong>
-                                            @($"{appointment.AppointmentTime.Hours:00}:{appointment.AppointmentTime.Minutes:00}")
+                                            @appointment.AppointmentTime.ToString(@"hh\:mm")
                                         </strong>
                                     </td>
+
 
                                     <!-- Patient -->
                                     <td>
@@ -204,8 +206,10 @@
 
                                     </td>
 
+
                                     <!-- Reason -->
                                     <td>
+
                                         @if (!string.IsNullOrWhiteSpace(
                                             appointment.Reason))
                                         {
@@ -217,6 +221,7 @@
                                                 No reason provided
                                             </span>
                                         }
+
                                     </td>
 
 
@@ -235,6 +240,13 @@
                                         {
                                             <span class="badge bg-success">
                                                 Confirmed
+                                            </span>
+                                        }
+                                        else if (appointment.Status ==
+                                            HospitalAppointmentSystem.Models.AppointmentStatus.CheckedIn)
+                                        {
+                                            <span class="badge bg-primary">
+                                                Checked In
                                             </span>
                                         }
                                         else if (appointment.Status ==
@@ -264,12 +276,26 @@
                                     <!-- Action -->
                                     <td>
 
+                                        <!-- View Appointment -->
                                         <a asp-controller="Doctor"
                                            asp-action="AppointmentDetails"
                                            asp-route-id="@appointment.AppointmentId"
                                            class="btn btn-sm btn-outline-primary">
                                             View
                                         </a>
+
+
+                                        <!-- Consult -->
+                                        @if (appointment.Status ==
+                                            HospitalAppointmentSystem.Models.AppointmentStatus.CheckedIn)
+                                        {
+                                            <a asp-controller="Consultation"
+                                               asp-action="Create"
+                                               asp-route-id="@appointment.AppointmentId"
+                                               class="btn btn-sm btn-primary ms-1">
+                                                Consult
+                                            </a>
+                                        }
 
                                     </td>
 

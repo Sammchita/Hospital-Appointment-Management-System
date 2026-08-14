@@ -1,0 +1,193 @@
+﻿@model HospitalAppointmentSystem.ViewModels.ConsultationViewModel
+
+@{
+    ViewData["Title"] = "Patient Consultation";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-9">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        Patient Consultation
+                    </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="alert alert-info">
+                        You are consulting with
+                        <strong>@Model.PatientName</strong>.
+                    </div>
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-6">
+                            <strong>Patient:</strong>
+                            @Model.PatientName
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Phone:</strong>
+                            @Model.PhoneNumber
+                        </div>
+
+                      
+
+                        <div class="col-md-6 mt-2">
+                            <strong>Appointment:</strong>
+
+                            @Model.AppointmentDate.ToString("yyyy-MM-dd")
+                            @($" {Model.AppointmentTime.Hours:00}:{Model.AppointmentTime.Minutes:00}")
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            Reason for Visit
+                        </label>
+
+                        <div class="alert alert-light border">
+                            @(string.IsNullOrWhiteSpace(Model.Reason)
+                                ? "No reason provided."
+                                : Model.Reason)
+                        </div>
+
+                    </div>
+
+                    <form asp-action="Save"
+                          method="post">
+
+                        <input type="hidden"
+                               asp-for="AppointmentId" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label asp-for="Diagnosis"
+                                   class="form-label">
+                            </label>
+
+                            <textarea asp-for="Diagnosis"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter diagnosis and doctor's notes...">
+                            </textarea>
+
+                            <span asp-validation-for="Diagnosis"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <h4 class="mb-3">
+                            Prescription
+                        </h4>
+
+                        <div class="border rounded p-3 mb-3">
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Medicine
+                                    </label>
+
+                                    <input name="PrescriptionItems[0].MedicineName"
+                                           class="form-control"
+                                           placeholder="e.g. Paracetamol" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Dosage
+                                    </label>
+
+                                    <input name="PrescriptionItems[0].Dosage"
+                                           class="form-control"
+                                           placeholder="e.g. 500 mg" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Frequency
+                                    </label>
+
+                                    <input name="PrescriptionItems[0].Frequency"
+                                           class="form-control"
+                                           placeholder="e.g. 2 times/day" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Duration
+                                    </label>
+
+                                    <input name="PrescriptionItems[0].Duration"
+                                           class="form-control"
+                                           placeholder="e.g. 5 days" />
+
+                                </div>
+
+                                <div class="col-12">
+
+                                    <label class="form-label">
+                                        Instructions
+                                    </label>
+
+                                    <textarea name="PrescriptionItems[0].Instructions"
+                                              class="form-control"
+                                              rows="2"
+                                              placeholder="e.g. Take after meals">
+                                    </textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Save Consultation
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Back
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
