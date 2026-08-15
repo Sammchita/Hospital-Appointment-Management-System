@@ -30,7 +30,6 @@ MediCare provides a centralized system where:
 
 3. Patient dashboard
    <img width="947" height="463" alt="image" src="https://github.com/user-attachments/assets/35669a8e-6f3f-43a0-bdb6-8a737e8df19d" />
-
   
 4.  Browse hospital departments
    <img width="527" height="346" alt="image" src="https://github.com/user-attachments/assets/a46c5063-76bf-44f5-8a2b-374200868cb4" />
@@ -48,18 +47,31 @@ MediCare provides a centralized system where:
    <img width="827" height="414" alt="image" src="https://github.com/user-attachments/assets/a408291d-55b9-4b52-b7ea-70a9d76dcaf2" />
 
 
-
-
 ### 👨‍⚕️ Doctor
 
 - Doctor authentication
+  <img width="956" height="437" alt="image" src="https://github.com/user-attachments/assets/3aeb05b2-39e2-4ada-b6d5-48f38e4ba180" />
+  <img width="959" height="476" alt="image" src="https://github.com/user-attachments/assets/1726f192-501d-4a7a-a827-32ad025bc04f" />
+
+
 - Doctor dashboard
+  <img width="904" height="466" alt="image" src="https://github.com/user-attachments/assets/f20c2161-3b5b-423d-a966-3abc7b650282" />
+
 - View today's appointments
-- View patient information
-- View appointment details
+  <img width="929" height="446" alt="image" src="https://github.com/user-attachments/assets/9c878dac-13ee-46d7-9d17-94ab2efb4492" />
+
+- View patient information and View appointment details
+  <img width="866" height="527" alt="image" src="https://github.com/user-attachments/assets/690faef1-d630-4fec-b3da-f92042cbc6f6" />
+
 - Conduct patient consultations
+  <img width="841" height="413" alt="image" src="https://github.com/user-attachments/assets/3f4247f2-59b2-4b2e-b1c5-a2c1c8f8892c" />
+
 - Enter diagnosis
+  <img width="815" height="425" alt="image" src="https://github.com/user-attachments/assets/411f3778-6969-4f8f-8cd1-325b5c6df56a" />
+
 - Add prescribed medicines
+  <img width="1502" height="477" alt="image" src="https://github.com/user-attachments/assets/46bc7a1d-9aa2-47a0-92d9-bcd6303bc761" />
+
 - Specify dosage, frequency, duration, and instructions
 - Automatically mark consulted appointments as completed
 
