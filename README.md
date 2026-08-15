@@ -25,18 +25,30 @@ MediCare provides a centralized system where:
 
 ### 👤 Patient
 
-- Patient registration and login
-- Patient dashboard
-- View personal profile
-- Browse hospital departments
-- Select doctors by department
-- Book appointments
-- Prevent duplicate doctor bookings
-- View appointment history
-- Cancel eligible appointments
-- View appointment status
-- View doctor and department information
+1.  Patient registration and login
+   <img width="782" height="469" alt="image" src="https://github.com/user-attachments/assets/f62b1a3d-5592-4edf-a350-4e101bc45341" />
+
+3. Patient dashboard
+   <img width="947" height="463" alt="image" src="https://github.com/user-attachments/assets/35669a8e-6f3f-43a0-bdb6-8a737e8df19d" />
+
   
+4.  Browse hospital departments
+   <img width="527" height="346" alt="image" src="https://github.com/user-attachments/assets/a46c5063-76bf-44f5-8a2b-374200868cb4" />
+
+5.  Select doctors by department
+ <img width="526" height="295" alt="image" src="https://github.com/user-attachments/assets/f75167fe-868f-4a4f-a142-af1c6a89986a" />
+
+6.  Book appointments
+   <img width="921" height="559" alt="image" src="https://github.com/user-attachments/assets/75fe5802-0f75-4a78-b539-36248a7cc0ed" />
+
+
+7. Prevent duplicate doctor bookings
+
+8. View appointment history , Cancel eligible appointments and View appointment status
+   <img width="827" height="414" alt="image" src="https://github.com/user-attachments/assets/a408291d-55b9-4b52-b7ea-70a9d76dcaf2" />
+
+
+
 
 ### 👨‍⚕️ Doctor
 
