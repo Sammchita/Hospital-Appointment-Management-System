@@ -83,16 +83,28 @@ MediCare provides a centralized system where:
 - Monitor pending appointments
 - Monitor confirmed appointments
 - Monitor completed appointments
-- View appointment details
 - View patient and doctor information
+    <img width="899" height="481" alt="image" src="https://github.com/user-attachments/assets/91ff820b-cb43-4132-99ad-185b62e0c30b" />
+    
+- View appointment details
+  <img width="822" height="534" alt="image" src="https://github.com/user-attachments/assets/aa2aca59-7d0d-4507-8e3c-6fc5884cb1fc" />
+
+
 
 ### 👨‍💻 Administrator
 
 - Administrator authentication
+  <img width="479" height="367" alt="image" src="https://github.com/user-attachments/assets/db9752b6-6ef3-4a91-aacf-6b38e904cb0b" />
+
 - Admin dashboard
-- Manage doctors
+  <img width="698" height="374" alt="image" src="https://github.com/user-attachments/assets/26022b1b-fb7e-4acf-bbcb-839c59e14915" />
+
+- Manage doctors and View doctor information
+  <img width="717" height="353" alt="image" src="https://github.com/user-attachments/assets/3749dbbe-375c-44c2-aa04-4541eb03eadb" />
+
 - Manage hospital departments
-- View doctor information
+  <img width="718" height="359" alt="image" src="https://github.com/user-attachments/assets/08cd9891-51d7-4b0b-b4b9-6def2215a6d5" />
+
 - Manage doctor records
 - Role-based access control
 
@@ -115,12 +127,8 @@ MediCare uses **ASP.NET Core Identity** and role-based authorization.
 
 The system contains four main roles:
 
-| Role | Main Responsibilities |
-|------|------------------------|
-| Patient | Book and manage appointments |
-| Doctor | Manage consultations and prescriptions |
-| Receptionist | Monitor and manage appointments |
-| Admin | Manage doctors and departments |
+<img width="374" height="194" alt="image" src="https://github.com/user-attachments/assets/a2c15b05-0b2f-470f-a322-efc1da5a54f8" />
+
 
 ###🛠️ Technologies Used
 ##Backend
@@ -137,7 +145,6 @@ The system contains four main roles:
 - Bootstrap
 - JavaScript
 
-
 ## Database
 - Microsoft SQL Server
 - Entity Framework Core Migrations
@@ -152,27 +159,6 @@ The system contains four main roles:
 
 The application follows the ASP.NET Core MVC architecture.
 
-                    ┌─────────────────────┐
-                    │       Browser       │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │    MVC Controllers  │
-                    └──────────┬──────────┘
-                               │
-                 ┌─────────────┼─────────────┐
-                 ▼             ▼             ▼
-             Models       ViewModels       Views
-                 │             │             │
-                 └─────────────┼─────────────┘
-                               ▼
-                    ┌─────────────────────┐
-                    │ Entity Framework    │
-                    │       Core          │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │    SQL Server DB    │
-                    └─────────────────────┘
+<img width="169" height="301" alt="image" src="https://github.com/user-attachments/assets/4a7a2f2f-ae99-42d2-af0d-1878560d98b3" />
+
+
